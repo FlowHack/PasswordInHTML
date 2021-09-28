@@ -13,11 +13,10 @@ import zipfile
 import requests
 from os import system as os_system
 from tkinter.messagebox import showerror, showinfo, askyesnocancel, showwarning
-from tkinter import Toplevel
 
 import clipboard
 
-from settings import clean_after_app, REPO_BRANCH_UPDATER, UPDATE_LINUX, path_to_updater, UPDATE_WIN, VERSION, path, path_to_settings_json, path_to_passwords_json, default_passwords, LOGGER, path_to_version, REPO_URL_VERSION, REPO_URL_UPDATER
+from settings import clean_after_app, REPO_BRANCH_UPDATER, UPDATE_LINUX, path_to_updater, UPDATE_WIN, VERSION, path, path_to_settings_json, path_to_passwords_json, LOGGER, path_to_version, REPO_URL_VERSION, REPO_URL_UPDATER
 
 
 def set_position_window_on_center(parent, width: int, height: int) -> None:
@@ -92,7 +91,6 @@ def get_dict_from_json_file(path):
     with open(path, 'r', encoding='UTF-8') as file:
         return load_json(file)
 
-
 def get_json_from_dict(object):
     return dumps_json(object, indent=4, ensure_ascii=False)
 
@@ -106,9 +104,17 @@ def get_settings():
 class Passwords:
     def __init__(self):
         if not isfile(path_to_passwords_json):
-            write_dict_in_file(path_to_passwords_json, default_passwords)
+            write_dict_in_file(path_to_passwords_json, {})
         
         self.passwords_dict, self.name_passwords = self.get_passwords()
+    
+    def add_password(self, password):
+        self.passwords_dict.update(password)
+        write_dict_in_file(path_to_passwords_json, self.passwords_dict)
+    
+    def edit_password(self, password, name):
+        del self.passwords_dict[name]
+        self.add_password(password)
     
     def get_passwords(self):
         passwords_dict = get_dict_from_json_file(path_to_passwords_json)
@@ -123,7 +129,7 @@ class Passwords:
         self.passwords_dict, self.name_passwords = self.get_passwords()
     
     def delete_all_passwords(self):
-        self.passwords_dict = default_passwords
+        self.passwords_dict = {}
 
         write_dict_in_file(path_to_passwords_json, self.passwords_dict)
         self.passwords_dict, self.name_passwords = self.get_passwords()
@@ -245,6 +251,3 @@ def check_update(os_name: str, call: bool = False) -> None:
                         'Мы не смогли выполнить обновление.\n\nВы можете скачать новую '
                         'версию самостоятельно, либо рассказать об ошибке в боте ВК'
                     )
-
-def add_password():
-    pass

@@ -8,7 +8,9 @@ from PIL import ImageTk, Image
 
 from run import set_position_window_on_center
 from settings import PERSON_AGREEMENT, path_to_little_ico, style
-from .functions import get_settings
+from settings import encryption
+from .functions import get_settings, Passwords
+from settings.encryption import Encryption
 
 
 class PersonAndAgreementData:
@@ -114,8 +116,11 @@ class PersonAndAgreementData:
             )
 
 class AddPassword:
-    def __init__(self, parent):
+    def __init__(self, parent, edit, name):
         self.password = None
+        self.edit = edit
+        self.name = name
+        self.decode = False
 
         self.window = Toplevel(parent)
         self.initialize_ui()
@@ -171,15 +176,24 @@ class AddPassword:
         self.entry_values = ttk.Entry(
             left_frame_bottom, width=50, font=('Times New Roman', 12)
         )
-        btn_add = ttk.Button(right_frame_button, text='Добавить')
+        if edit:
+            self.btn_decode = ttk.Button(right_frame_button, text='Декодировать')
+            btn_add = ttk.Button(right_frame_button, text='Редактировать')
+        else:
+            btn_add = ttk.Button(right_frame_button, text='Добавить')
         btn_cancel = ttk.Button(right_frame_button, text='Отмена')
 
         self.entry_name.grid(row=0, column=1, sticky='WE', padx=4)
         self.entry_url.grid(row=1, column=1, sticky='WE', padx=4)
         self.entry_columns.grid(row=1, column=1, sticky='WE', padx=4)
         self.entry_values.grid(row=1, column=1, sticky='WE', padx=4)
-        btn_add.grid(row=0, column=0, sticky='WE', pady=3)
-        btn_cancel.grid(row=1, column=0, sticky='WE')
+        if edit:
+            self.btn_decode.grid(row=0, column=0, sticky='WE')
+            btn_add.grid(row=1, column=0, sticky='WE', pady=3)
+            btn_cancel.grid(row=2, column=0, sticky='WE')
+        else:
+            btn_add.grid(row=0, column=0, sticky='WE', pady=3)
+            btn_cancel.grid(row=1, column=0, sticky='WE')
 
         self.window.columnconfigure(0, weight=5)
         self.window.columnconfigure(0, weight=1)
@@ -192,10 +206,17 @@ class AddPassword:
         right_frame.columnconfigure(0, weight=1)
         right_frame.rowconfigure(0, weight=1)
 
+
         self.completetion_entry_columns()
 
-        btn_cancel.bind('<Button-1>', lambda event: self.window.destroy())
+        btn_cancel.bind('<Button-1>', lambda event: self.close())
         btn_add.bind('<Button-1>', lambda event: self.add_password())
+        if edit:
+            self.btn_decode.bind('<Button-1>', lambda event: self.decode_columns_values())
+            self.entry_columns.configure(state='readonly')
+            self.entry_values.configure(state='readonly')
+        self.window.bind('<Return>', lambda event: self.add_password())
+        self.window.bind('<Escape>', lambda event: self.close())
     
     def initialize_ui(self):
         """
@@ -210,14 +231,46 @@ class AddPassword:
             path_to_little_ico
         ))
         self.window.title('Добавление пароля')
+        self.window.minsize(w, h)
+        self.window.maxsize(w, h)
         set_position_window_on_center(self.window, w, h)
         self.window.tk.call(
             'wm', 'iconphoto', self.window._w, ico
         )
     
+    def close(self):
+        self.password = None
+        self.window.destroy()
+    
     def completetion_entry_columns(self):
-        settings = get_settings()
-        self.entry_columns.insert(0, settings['default_columns'])
+        if self.edit:
+            password = Passwords().passwords_dict[self.name]
+
+            self.entry_name.insert(0, self.name)
+            self.entry_url.insert(0, password['url'])
+            self.entry_columns.insert(0, password['columns'])
+            self.entry_values.insert(0, password['values'])
+        else:
+            settings = get_settings()
+            self.entry_columns.insert(0, settings['default_columns'])
+    
+    def decode_columns_values(self):
+        columns = self.entry_columns.get()
+        values = self.entry_values.get()
+
+        encryption = Encryption()
+        columns = encryption.decryption(columns)
+        values = encryption.decryption(values)
+
+        self.entry_columns.configure(state='normal')
+        self.entry_values.configure(state='normal')
+        self.entry_columns.delete(0, 'end')
+        self.entry_values.delete(0, 'end')
+        self.entry_columns.insert(0, columns)
+        self.entry_values.insert(0, values)
+        self.btn_decode.destroy()
+
+        self.decode = True
     
     def add_password(self):
         def entry_normal(entry):
@@ -232,9 +285,23 @@ class AddPassword:
             entry.after(3000, lambda: entry_normal(entry))
 
         name = self.entry_name.get()
+        if name in Passwords().name_passwords and not self.edit:
+            showwarning(
+                'Есть с таким именем',
+                'Запись с таким именем уже имеется!'
+            )
+            return
+
         url = self.entry_url.get()
-        columns = self.entry_columns.get().split('&&')
-        values = self.entry_values.get().split('&&')
+        _columns = self.entry_columns.get()
+        _values = self.entry_values.get()
+        if self.edit and self.decode is False:
+            encrypt = Encryption()
+            _columns = encrypt.decryption(_columns)
+            _values = encrypt.decryption(_values)
+
+        columns = _columns.split('&&')
+        values = _values.split('&&')
 
         if len(name) == 0:
             set_warning_entry(self.entry_name)
@@ -254,6 +321,19 @@ class AddPassword:
             set_warning_entry(self.entry_columns)
             set_warning_entry(self.entry_values)
             return
+        
+        encryptyon_func = Encryption()
+        columns = encryptyon_func.encrypt(_columns)
+        values = encryptyon_func.encrypt(_values)
+
+        self.password = {
+            name: {
+                'columns': columns,
+                'values': values,
+                'url': url
+            } 
+        }
+        self.window.destroy()
 
 class Windows:
     """
@@ -262,7 +342,7 @@ class Windows:
 
     def __init__(self, parent=None):
         self.person_and_agreement_data_window = PersonAndAgreementData
-        self.add_password = AddPassword
+        self._add_password_or_edit = AddPassword
         self.parent = parent
 
     def person_and_agreement_data(self):
@@ -272,13 +352,19 @@ class Windows:
         :return:
         """
         window = self.person_and_agreement_data_window()
-
         window.agreement_window.wait_window()
 
         return window.agreement
     
-    def add_password(self):
-        window = self.add_password(self.parent)
+    def add_password_or_edit(self, edit=False, name=False):
+        window = self._add_password_or_edit(self.parent, edit, name)
         window.window.wait_window()
-
-        return window.password
+        password = window.password
+        if password is None:
+            return False
+        
+        if edit:
+            Passwords().edit_password(password, name)
+        else:
+            Passwords().add_password(password)
+        return True

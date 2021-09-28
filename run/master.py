@@ -38,8 +38,6 @@ class App(Tk):
         notebook.pack(expand=True, fill='both')
 
         self.update()
-        self.passwords = Passwords()
-        self.windows = Windows(self)
         self.build()
 
         if auto_update == 1:
@@ -101,8 +99,9 @@ class App(Tk):
         right_center_frame.grid(row=1, column=0, sticky='WE')
         right_bottom_frame.grid(row=2, column=0, sticky='WE')     
 
-        search = ttk.Entry(top_frame, width=82, font=('Times New Roman', 12))
+        self.search = ttk.Entry(top_frame, width=73, font=('Times New Roman', 12))
         btn_search = ttk.Button(top_frame, text='Найти')
+        btn_throw_off = ttk.Button(top_frame, text='Сбросить')
         self.list_password = Listbox(
             left_frame, borderwidth=1, height=11, width=62,
             cursor='dot', font=('Times New Roman', 15)
@@ -116,12 +115,12 @@ class App(Tk):
             right_bottom_frame, text='Удалить', width=13, cursor='circle', state='disable'
         )
         self.delete_all = ttk.Button(
-            right_bottom_frame, text='Удалить все', width=13, cursor='pirate',
-            state='disable'
+            right_bottom_frame, text='Удалить все', width=13, cursor='pirate'
         )
 
-        search.grid(row=0, column=0, padx=5)
-        btn_search.grid(row=0, column=1)
+        self.search.grid(row=0, column=0)
+        btn_search.grid(row=0, column=1, padx=4)
+        btn_throw_off.grid(row=0, column=2, )
         self.list_password.grid(row=0, column=0, sticky='NSWE')
         generate.grid(row=0, column=0, sticky='NWE')
         add.grid(row=1, column=0, sticky='NWE')
@@ -136,38 +135,68 @@ class App(Tk):
         self.completetion_into_listbox()
 
         self.list_password.bind('<<ListboxSelect>>', lambda event: self.enable_button_touch())
+        self.list_password.bind('<Double-Button-1>', lambda event: self.edit_password())
+        self.list_password.bind('<Delete>', lambda event: self.delete_password())
         self.delete.bind('<Button-1>', lambda event: self.delete_password())
         self.delete_all.bind('<Button-1>', lambda event: self.delete_all_passwords())
         add.bind('<Button-1>', lambda event: self.add_password())
+        self.edit.bind('<Button-1>', lambda event: self.edit_password())
+        btn_search.bind('<Button-1>', lambda event: self.completetion_into_listbox(True))
+        btn_throw_off.bind('<Button-1>', lambda event: self.throw_off())
+    
+    def update_list(self):
+        self.list_password.delete(0, 'end')
+        self.completetion_into_listbox()
+        self.disable_button_touch()
     
     def enable_button_touch(self):
-        if len(self.passwords.name_passwords) > 0:
+        passwords = Passwords()
+
+        if len(passwords.name_passwords) > 0:
             self.edit.configure(state='enable')
             self.delete.configure(state='enable')
-            self.delete_all.configure(state='enable')
     
     def disable_button_touch(self):
         self.edit.configure(state='disable')
         self.delete.configure(state='disable')
-        self.delete_all.configure(state='disable')
     
-    def completetion_into_listbox(self):
-        for i in range(len(self.passwords.name_passwords)):
-            name_password = self.passwords.name_passwords[i]
+    def throw_off(self):
+        self.search.delete(0, 'end')
+        self.completetion_into_listbox()
+    
+    def completetion_into_listbox(self, search=False):
+        self.list_password.delete(0, 'end')
+        self.disable_button_touch()
+        passwords = Passwords()
+
+        if search is not False:
+            fraze = self.search.get()
+
+            k = 0
+            for i in range(len(passwords.name_passwords)):
+                name_password = passwords.name_passwords[i]
+                if fraze in name_password:
+                    self.list_password.insert(k, name_password)
+                    k += 1
+            
+            if k == 0:
+                self.list_password.insert(k, 'Ничего не найдено')
+            return
+
+        for i in range(len(passwords.name_passwords)):
+            name_password = passwords.name_passwords[i]
             self.list_password.insert(i, name_password)
     
     def delete_password(self):
         name = self.get_record()
-        self.passwords.delete_password(name)
-        self.list_password.delete(0, 'end')
-        self.completetion_into_listbox()
-        self.disable_button_touch()
+        if name is None:
+            return
+        Passwords().delete_password(name)
+        self.update_list()
     
     def delete_all_passwords(self):
-        self.passwords.delete_all_passwords()
-        self.list_password.delete(0, 'end')
-        self.completetion_into_listbox()
-        self.disable_button_touch()
+        Passwords().delete_all_passwords()
+        self.update_list()
 
     def get_record(self):
         try:
@@ -178,4 +207,15 @@ class App(Tk):
             return
     
     def add_password(self):
-        self.windows.add_password(self)
+        windows = Windows(self)
+        windows.add_password_or_edit()
+        self.update_list()
+    
+    def edit_password(self):
+        name = self.get_record()
+        if name is None:
+            return 
+        
+        windows = Windows(self)
+        windows.add_password_or_edit(edit=True, name=name)
+        self.update_list()

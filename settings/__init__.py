@@ -16,7 +16,6 @@ __all__ = [
     'clean_after_app',
     'path_to_static',
     'path_to_passwords',
-    'default_passwords',
     'path_to_version',
     'path_to_updater',
     'REPO_URL_VERSION',

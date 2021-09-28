@@ -33,16 +33,6 @@ default_settings = {
     'back-color': '#DBDBDB',
     'default_columns': 'Логин&&Пароль'
 }
-default_passwords = {
-    'Пример': {
-        'columns': ['Логин', 'Пароль'],
-        'values': ['логин228', 'пароль228'],
-    },
-    'Пример_2': {
-        'columns': ['Логин2', 'Пароль2'],
-        'values': ['логин2282', 'пароль2282'],
-    }
-}
 
 
 PERSON_AGREEMENT = """
