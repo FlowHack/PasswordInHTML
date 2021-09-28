@@ -17,5 +17,15 @@ __all__ = [
     'path_to_static',
     'path_to_passwords',
     'default_passwords',
+    'path_to_version',
+    'path_to_updater',
+    'REPO_URL_VERSION',
+    'REPO_URL_UPDATER',
+    'REPO_BRANCH_VERSION',
+    'REPO_BRANCH_UPDATER',
+    'REPO_BRANCH_MASTER',
+    'VERSION',
+    'UPDATE_WIN',
+    'UPDATE_LINUX',
     'style'
 ]

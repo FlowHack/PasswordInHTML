@@ -19,6 +19,20 @@ from settings import (LOGGER, clean_after_app, default_settings,
                       path_to_settings_json, path_to_style, path_to_passwords)
 
 
+if platform in ['linux']:
+    OS = 'Linux'
+elif platform in ['win32', 'cygwin']:
+    OS = 'Windows'
+else:
+    showerror(
+        'Платформа не поддерживается',
+        f'Неподдерживаемая платформа: {platform}\n\nОбратитесь за помощью '
+        'к боту VK'
+    )
+
+    exit_ex()
+
+
 class StartApp:
     def __init__(self, preview):
         self.logger = LOGGER('start_app', 'main')
@@ -41,7 +55,8 @@ class StartApp:
             settings = default_settings
             write_dict_in_file(path_to_settings_json, settings)
             first_start = 1
-        
+        auto_update = settings['auto_update']
+
         unzip_file(path_icos_zip, file_name='LittlePassHTML.ico', path_extract=path_to_style)
 
         if first_start == 1:
@@ -65,7 +80,7 @@ class StartApp:
         __clean_preview__()
 
         self.logger.info('Запуск приложения')
-        App()
+        App(auto_update, OS)
         self.logger.info('Закрытие приложения')
 
         clean_after_app()
@@ -103,7 +118,7 @@ if __name__ == '__main__':
         )
         LOGGER('platform', 'main').error(f'{platform} не поддерживается')
         exit_ex()
-    OS = 'Linux' if  platform in ['linux'] else 'Windows'
+
     LOGGER('platform', 'main').info(f'Запуск на платформе: {platform}')
 
     def __scheduler__() -> None:

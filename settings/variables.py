@@ -1,7 +1,19 @@
 from os import getcwd
 from os.path import join as path_join
 
+VERSION = '1.0.0'
+
+UPDATE_WIN = 'updater.exe'
+UPDATE_LINUX = 'updater.sh'
+REPO_URL_VERSION = 'https://github.com/FlowHack/PasswordInHTML/archive/refs/heads/version.zip'
+REPO_URL_UPDATER = 'https://github.com/FlowHack/PasswordInHTML/archive/refs/heads/updater.zip'
+REPO_BRANCH_VERSION = 'PasswordInHTML-version'
+REPO_BRANCH_UPDATER = 'PasswordInHTML-updater'
+REPO_BRANCH_MASTER = 'PasswordInHTML-master'
+
 path = getcwd()
+path_to_version = os.path.join(path, REPO_BRANCH_VERSION)
+path_to_updater = os.path.join(path, REPO_BRANCH_UPDATER)
 path_to_settings = path_join(path, 'settings')
 path_icos_zip = path_join(path_to_settings, 'PassHTMLicos.zip')
 path_to_style = path_join(path_to_settings, 'style')

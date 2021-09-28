@@ -4,11 +4,19 @@ from json import dumps as dumps_json
 from json import load as load_json
 from json import loads as loads_json
 from os.path import isfile
+from os.path import join as path_join
 from typing import Union
+import subprocess
+from shutil import rmtree
+import tempfile
+import zipfile
+import requests
+from os import system as os_system
+from tkinter.messagebox import showerror, showinfo, askyesnocancel, showwarning
 
 import clipboard
 
-from settings import path_to_passwords, path_to_settings_json, path_to_passwords_json, default_passwords
+from settings import clean_after_app, REPO_BRANCH_UPDATER, UPDATE_LINUX, path_to_updater, UPDATE_WIN, VERSION, path, path_to_settings_json, path_to_passwords_json, default_passwords, LOGGER, path_to_version, REPO_URL_VERSION, REPO_URL_UPDATER
 
 
 def set_position_window_on_center(parent, width: int, height: int) -> None:
@@ -118,3 +126,120 @@ class Passwords:
 
         write_dict_in_file(path_to_passwords_json, self.passwords_dict)
         self.passwords_dict, self.name_passwords = self.get_passwords()
+
+def update_app(os_name: str) -> None:
+        """
+        Скачивание программы обновления и запуск обновлений
+        :param os_name: имя OS
+        :return:
+        """
+        LOGGER.info(f'Клонируем проект {os_name}')
+
+        response = requests.get(REPO_URL_UPDATER)
+
+        with tempfile.TemporaryFile() as file:
+            file.write(response.content)
+            with zipfile.ZipFile(file) as fzip:
+                fzip.extractall(path)
+
+        if os_name == 'Windows':
+            command = path_join(path_to_updater, UPDATE_WIN)
+            subprocess.Popen(command, cwd=path_to_updater)
+            clean_after_app()
+
+        if os_name == 'Linux':
+            os_system(f'chmod -R 775 {path_to_updater}')
+
+            showwarning(
+                'Обновление',
+                f'Для обновления вам нужно перейти в папку \"{REPO_BRANCH_UPDATER}\", '
+                f'которая появилась у вас в корне программы и запустить файл {UPDATE_LINUX}.'
+                '\n\nИзвините за предоставленные неудобства.'
+            )
+            clean_after_app()
+    
+def check_update(self, os_name: str, call: bool = False) -> None:
+        """
+        Проверка наличия обновлений
+        :param os_name: имя OS
+        :param call: булево принудительно ли отправлен запрос на проверку
+        обновлений default: False
+        :return:
+        """
+        version = path_join(path_to_version, 'version.txt')
+        logger = LOGGER('update', 'main')
+
+        try:
+            logger.info('Клонируем version')
+            response = requests.get(REPO_URL_VERSION)
+
+            with tempfile.TemporaryFile() as file:
+                file.write(response.content)
+                with zipfile.ZipFile(file) as fzip:
+                    fzip.extractall(path)
+
+        except ConnectionError as error:
+            logger.error(
+                f'Произошла ошибка при клонировании проекта {error}'
+            )
+            if call is True:
+                showerror(
+                    'Невозможно выполнить обновление',
+                    f'Ваша версия: {VERSION}\n\nПлохое подключение к интернету. '
+                    'Мы не смогли выполнить обновление.\n\nВы можете скачать новую '
+                    'версию самостоятельно, либо рассказать об ошибке в боте ВК'
+                )
+
+            return
+
+        with open(version, 'r', encoding='utf-8') as file:
+            file = file.readline().strip().split('&')
+
+        rmtree(path_to_version, ignore_errors=True, onerror=None)
+
+        version = file[0].strip()
+        v_int = [int(item) for item in version.split('.')]
+        version_old = [item for item in VERSION.split('.')]
+        v_old_int = [int(item) for item in version_old]
+        info = file[1]
+
+        condition_1 = v_int[0] > v_old_int[0]
+        condition_2 = v_int[0] >= v_old_int[0] and v_int[1] > v_old_int[1]
+        condition_3 = \
+            v_int[0] >= v_old_int[0] and v_int[1] >= v_old_int[1] and \
+            v_int[2] > v_old_int[2]
+        need_update = (False, True)[condition_1 or condition_2 or condition_3]
+
+        if (call is True) and (need_update is False):
+            showinfo(
+                'Обновление не требуется',
+                f'Обновление не требуется\n\nУстановлена актуальная версия: {VERSION}'
+            )
+
+        if need_update is True:
+            answer = askyesnocancel(
+                'Требуется обновление',
+                f'Выпущена новая версия: {version}\n\n{info}\n\nДа-Будет установлено обновление\nНет-Обновление будет отложено\nОтмена-Будет отменена автоматическая проверка обновлений'
+            )
+
+            if answer is False:
+                return
+            if answer is None:
+                logger.info('Отмена автообновлений')
+                settings = get_settings()
+                settings['auto_update'] = 0
+                write_dict_in_file(path_to_settings_json, settings)
+                return
+            if answer is True:
+                try:
+                    update_app(os_name)
+                except ConnectionError as error:
+                    logger.error(
+                        f'Невозможно обновиться {os_name} -> {error}'
+                    )
+                    showerror(
+                        'Невозможно выполнить обновление',
+                        f'Ваша версия: {VERSION}\n\nПлохое подключение к интернету. '
+                        'Мы не смогли выполнить обновление.\n\nВы можете скачать новую '
+                        'версию самостоятельно, либо рассказать об ошибке в боте ВК'
+                    )

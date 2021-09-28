@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 from run import unzip_file
 from settings import *
 
-from .functions import set_position_window_on_center, Passwords
+from .functions import set_position_window_on_center, Passwords, check_update
 
 
 class App(Tk):
@@ -16,7 +16,7 @@ class App(Tk):
     Класс отвечающий за запуск главного окна и его создание
     """
 
-    def __init__(self):
+    def __init__(self, auto_update, OS):
         """
         Создание главного окна, вкладок и управление функциями
         :param update: нужно ли проверить обновление
@@ -24,6 +24,7 @@ class App(Tk):
         :return
         """
         super().__init__()
+        self.OS = OS_NAME
         self.app_ico = self.get_app_ico()
         self.initialize_ui()
 
@@ -38,6 +39,10 @@ class App(Tk):
         self.update()
         self.passwords = Passwords()
         self.build()
+
+        if auto_update == 1:
+            LOGGER('update', 'master').info('Начинаем процесс проверки обновлений')
+            check_update(os_name=self.OS)
 
         self.mainloop()
     
