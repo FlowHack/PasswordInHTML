@@ -74,4 +74,25 @@ def style_for_warning_entry() -> None:
                              'Entry.textarea', {'sticky': 'nswe'})],
                              'sticky': 'nswe'})], 'sticky': 'nswe'})],
                      'border': '2', 'sticky': 'nswe'})])
-    style.configure('Warning.TEntry', fieldbackground='#FFA3AD')
+    style.configure('Warning.TEntry', fieldbackground='#FFA3AD', foreground='#191C1D')
+
+
+def style_for_normal_entry() -> None:
+    """
+    Функция создания стиля для пустого Entry
+    :return:
+    """
+    style = Style()
+    try:
+        style.element_create('plain.field', 'from', 'clam')
+    except TclError as error:
+        if str(error) == 'Duplicate element plain.field':
+            pass
+    style.layout('Normal.TEntry',
+                 [('Entry.plain.field', {'children': [(
+                     'Entry.background', {'children': [(
+                         'Entry.padding', {'children': [(
+                             'Entry.textarea', {'sticky': 'nswe'})],
+                             'sticky': 'nswe'})], 'sticky': 'nswe'})],
+                     'border': '2', 'sticky': 'nswe'})])
+    style.configure('Warning.TEntry', fieldbackground='#191C1D', foreground='#FFFFFF')

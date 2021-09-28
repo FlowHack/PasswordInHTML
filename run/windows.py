@@ -1,12 +1,14 @@
 import os
 from sys import exit as exit_ex
 from time import time
-from tkinter import Text, Tk, messagebox, ttk
+from tkinter import Text, Tk, Toplevel, messagebox, ttk
+from tkinter.messagebox import showwarning
 
-from PIL import ImageTk
+from PIL import ImageTk, Image
 
 from run import set_position_window_on_center
 from settings import PERSON_AGREEMENT, path_to_little_ico, style
+from .functions import get_settings
 
 
 class PersonAndAgreementData:
@@ -56,15 +58,15 @@ class PersonAndAgreementData:
 
         w = 600
         h = 300
-        FPVK = ImageTk.PhotoImage(
-            file=path_to_little_ico
-        )
+        ico = ImageTk.PhotoImage(Image.open(
+            path_to_little_ico
+        ))
         self.agreement_window.title('Пользовательское соглашение!')
         set_position_window_on_center(self.agreement_window, w, h)
         self.agreement_window.tk.call(
-            'wm', 'iconphoto', self.agreement_window._w, FPVK
+            'wm', 'iconphoto', self.agreement_window._w, ico
         )
-        self.agreement_window.protocol("WM_DELETE_WINDOW", exit_ex)
+        self.agreement_window.protocol('WM_DELETE_WINDOW', exit_ex)
 
     def done_agreement(self):
         """
@@ -111,13 +113,157 @@ class PersonAndAgreementData:
                 f'пользовательское соглашение! '
             )
 
+class AddPassword:
+    def __init__(self, parent):
+        self.password = None
+
+        self.window = Toplevel(parent)
+        self.initialize_ui()
+
+        left_frame = ttk.Frame(self.window, padding=5, borderwidth=1)
+        left_frame_name = ttk.Frame(left_frame, padding=1)
+        left_frame_top = ttk.Frame(left_frame, padding=1)
+        left_frame_average = ttk.Frame(left_frame, padding=1)
+        left_frame_bottom = ttk.Frame(left_frame, padding=1)
+        right_frame = ttk.Frame(self.window, padding=5, borderwidth=1)
+        right_frame_button = ttk.Frame(right_frame)
+        left_frame.grid(column=0, row=0, sticky='NSWE')
+        left_frame_name.grid(column=0, row=0, sticky='NSE')
+        left_frame_top.grid(column=0, row=1, sticky='NSE')
+        left_frame_average.grid(column=0, row=2, sticky='NSE')
+        left_frame_bottom.grid(column=0, row=3, sticky='NSE')
+        right_frame.grid(column=1, row=0, sticky='NSWE')
+        right_frame_button.grid(column=0, row=0, sticky='WE')
+
+        ttk.Label(
+            left_frame_name, text='Название', font=('Times New Roman', 12)
+        ).grid(row=0, column=0, sticky='E')
+        self.entry_name = ttk.Entry(
+            left_frame_name, width=50, font=('Times New Roman', 12)
+        )
+        ttk.Label(
+            left_frame_top, text='Необязательно',
+            font=('Times New Roman', 9), foreground='#FF4600'
+        ).grid(row=0, column=0, columnspan=2)
+        ttk.Label(
+            left_frame_top, text='Ссылка', font=('Times New Roman', 12)
+        ).grid(row=1, column=0, sticky='E')
+        self.entry_url = ttk.Entry(
+            left_frame_top, width=50, font=('Times New Roman', 12)
+        )
+        ttk.Label(
+            left_frame_average, text='Введите названия колонок через &&', 
+            font=('Times New Roman', 9), foreground='#FF4600'
+            ).grid(row=0, column=0, columnspan=2)
+        ttk.Label(
+            left_frame_average, text='Колонки', font=('Times New Roman', 12)
+        ).grid(row=1, column=0, sticky='E')
+        self.entry_columns = ttk.Entry(
+            left_frame_average, width=50, font=('Times New Roman', 12)
+        )
+        ttk.Label(
+            left_frame_bottom, text='Введите значения колонок через &&', 
+            font=('Times New Roman', 9), foreground='#FF4600'
+            ).grid(row=0, column=0, columnspan=2)
+        ttk.Label(
+            left_frame_bottom, text='Значения', font=('Times New Roman', 12)
+        ).grid(row=1, column=0, sticky='E')
+        self.entry_values = ttk.Entry(
+            left_frame_bottom, width=50, font=('Times New Roman', 12)
+        )
+        btn_add = ttk.Button(right_frame_button, text='Добавить')
+        btn_cancel = ttk.Button(right_frame_button, text='Отмена')
+
+        self.entry_name.grid(row=0, column=1, sticky='WE', padx=4)
+        self.entry_url.grid(row=1, column=1, sticky='WE', padx=4)
+        self.entry_columns.grid(row=1, column=1, sticky='WE', padx=4)
+        self.entry_values.grid(row=1, column=1, sticky='WE', padx=4)
+        btn_add.grid(row=0, column=0, sticky='WE', pady=3)
+        btn_cancel.grid(row=1, column=0, sticky='WE')
+
+        self.window.columnconfigure(0, weight=5)
+        self.window.columnconfigure(0, weight=1)
+        self.window.rowconfigure(0, weight=1)
+        left_frame.columnconfigure(0, weight=1)
+        left_frame.rowconfigure(0, weight=1)
+        left_frame.rowconfigure(1, weight=1)
+        left_frame.rowconfigure(2, weight=1)
+        left_frame.rowconfigure(3, weight=1)
+        right_frame.columnconfigure(0, weight=1)
+        right_frame.rowconfigure(0, weight=1)
+
+        self.completetion_entry_columns()
+
+        btn_cancel.bind('<Button-1>', lambda event: self.window.destroy())
+        btn_add.bind('<Button-1>', lambda event: self.add_password())
+    
+    def initialize_ui(self):
+        """
+        Инициализация окна
+        :return:
+        """
+        style.set_global_style(self.window)
+
+        w = 600
+        h = 200
+        ico = ImageTk.PhotoImage(Image.open(
+            path_to_little_ico
+        ))
+        self.window.title('Добавление пароля')
+        set_position_window_on_center(self.window, w, h)
+        self.window.tk.call(
+            'wm', 'iconphoto', self.window._w, ico
+        )
+    
+    def completetion_entry_columns(self):
+        settings = get_settings()
+        self.entry_columns.insert(0, settings['default_columns'])
+    
+    def add_password(self):
+        def entry_normal(entry):
+            style.style_for_normal_entry()
+            entry.configure(style='Normal.TEntry')
+            entry.update()
+        
+        def set_warning_entry(entry):
+            style.style_for_warning_entry()
+            entry.configure(style='Warning.TEntry')
+            entry.update()
+            entry.after(3000, lambda: entry_normal(entry))
+
+        name = self.entry_name.get()
+        url = self.entry_url.get()
+        columns = self.entry_columns.get().split('&&')
+        values = self.entry_values.get().split('&&')
+
+        if len(name) == 0:
+            set_warning_entry(self.entry_name)
+            return
+        if len(columns) == 1 and columns[0] == '':
+            set_warning_entry(self.entry_columns)
+            return
+        if len(values) == 1 and values[0] == '':
+            set_warning_entry(self.entry_values)
+            return
+        
+        if len(columns) != len(values):
+            showwarning(
+                'Неверное значение',
+                'Количество колонок не соответствует количеству значений'    
+            )
+            set_warning_entry(self.entry_columns)
+            set_warning_entry(self.entry_values)
+            return
+
 class Windows:
     """
     Класс дополнительных окон
     """
 
-    def __init__(self):
+    def __init__(self, parent=None):
         self.person_and_agreement_data_window = PersonAndAgreementData
+        self.add_password = AddPassword
+        self.parent = parent
 
     def person_and_agreement_data(self):
         """
@@ -130,3 +276,9 @@ class Windows:
         window.agreement_window.wait_window()
 
         return window.agreement
+    
+    def add_password(self):
+        window = self.add_password(self.parent)
+        window.window.wait_window()
+
+        return window.password

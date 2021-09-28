@@ -13,6 +13,7 @@ import zipfile
 import requests
 from os import system as os_system
 from tkinter.messagebox import showerror, showinfo, askyesnocancel, showwarning
+from tkinter import Toplevel
 
 import clipboard
 
@@ -133,7 +134,8 @@ def update_app(os_name: str) -> None:
         :param os_name: имя OS
         :return:
         """
-        LOGGER.info(f'Клонируем проект {os_name}')
+        logger = LOGGER('update', 'main')
+        logger.info(f'Клонируем проект {os_name}')
 
         response = requests.get(REPO_URL_UPDATER)
 
@@ -158,7 +160,7 @@ def update_app(os_name: str) -> None:
             )
             clean_after_app()
     
-def check_update(self, os_name: str, call: bool = False) -> None:
+def check_update(os_name: str, call: bool = False) -> None:
         """
         Проверка наличия обновлений
         :param os_name: имя OS
@@ -243,3 +245,6 @@ def check_update(self, os_name: str, call: bool = False) -> None:
                         'Мы не смогли выполнить обновление.\n\nВы можете скачать новую '
                         'версию самостоятельно, либо рассказать об ошибке в боте ВК'
                     )
+
+def add_password():
+    pass

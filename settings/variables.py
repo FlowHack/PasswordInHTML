@@ -1,7 +1,7 @@
 from os import getcwd
 from os.path import join as path_join
 
-VERSION = '1.0.0'
+VERSION = '0.0.1'
 
 UPDATE_WIN = 'updater.exe'
 UPDATE_LINUX = 'updater.sh'
@@ -12,8 +12,8 @@ REPO_BRANCH_UPDATER = 'PasswordInHTML-updater'
 REPO_BRANCH_MASTER = 'PasswordInHTML-master'
 
 path = getcwd()
-path_to_version = os.path.join(path, REPO_BRANCH_VERSION)
-path_to_updater = os.path.join(path, REPO_BRANCH_UPDATER)
+path_to_version = path_join(path, REPO_BRANCH_VERSION)
+path_to_updater = path_join(path, REPO_BRANCH_UPDATER)
 path_to_settings = path_join(path, 'settings')
 path_icos_zip = path_join(path_to_settings, 'PassHTMLicos.zip')
 path_to_style = path_join(path_to_settings, 'style')
@@ -28,8 +28,10 @@ path_to_passwords_json = path_join(path_to_passwords, 'passwords.json')
 
 default_settings = {
     'first_start': 1,
+    'auto_update': 1,
     'font-color': '#494949',
-    'back-color': '#DBDBDB' 
+    'back-color': '#DBDBDB',
+    'default_columns': 'Логин&&Пароль'
 }
 default_passwords = {
     'Пример': {

@@ -1,3 +1,7 @@
 {
-    "first_start": 0
+    "first_start": 0,
+    "auto_update": 0,
+    "font-color": "#494949",
+    "back-color": "#DBDBDB",
+    "default_columns": "Логин&&Пароль"
 }

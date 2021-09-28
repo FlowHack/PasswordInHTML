@@ -1,5 +1,6 @@
 from gc import enable
 from os.path import isfile
+from run.windows import Windows
 from sys import exit as exit_ex
 from tkinter import Tk, ttk, Listbox, TclError
 
@@ -24,7 +25,7 @@ class App(Tk):
         :return
         """
         super().__init__()
-        self.OS = OS_NAME
+        self.OS = OS
         self.app_ico = self.get_app_ico()
         self.initialize_ui()
 
@@ -38,6 +39,7 @@ class App(Tk):
 
         self.update()
         self.passwords = Passwords()
+        self.windows = Windows(self)
         self.build()
 
         if auto_update == 1:
@@ -86,25 +88,12 @@ class App(Tk):
         self.update()
     
     def generate_main(self):
-        top_frame = ttk.Frame(
-            self.main, padding=2
-        )
-        left_frame = ttk.Frame(
-            self.main, relief='solid',
-            borderwidth=1, padding=5
-        )
-        right_frame = ttk.Frame(
-            self.main, padding=5
-        )
-        right_top_frame = ttk.Frame(
-            right_frame
-        )
-        right_center_frame = ttk.Frame(
-            right_frame
-        )
-        right_bottom_frame = ttk.Frame(
-            right_frame
-        )
+        top_frame = ttk.Frame(self.main, padding=2)
+        left_frame = ttk.Frame(self.main, relief='solid', borderwidth=1, padding=5)
+        right_frame = ttk.Frame(self.main, padding=5)
+        right_top_frame = ttk.Frame(right_frame)
+        right_center_frame = ttk.Frame(right_frame)
+        right_bottom_frame = ttk.Frame(right_frame)
         top_frame.grid(row=0, column=0, columnspan=2, sticky='WE', pady=2, padx=3)
         left_frame.grid(row=1, column=0, sticky='NSWE', padx=3, pady=3)
         right_frame.grid(row=1, column=1, sticky='NSWE', padx=3, pady=3)
@@ -112,7 +101,7 @@ class App(Tk):
         right_center_frame.grid(row=1, column=0, sticky='WE')
         right_bottom_frame.grid(row=2, column=0, sticky='WE')     
 
-        search = ttk.Entry(top_frame, width=95)
+        search = ttk.Entry(top_frame, width=82, font=('Times New Roman', 12))
         btn_search = ttk.Button(top_frame, text='Найти')
         self.list_password = Listbox(
             left_frame, borderwidth=1, height=11, width=62,
@@ -149,6 +138,7 @@ class App(Tk):
         self.list_password.bind('<<ListboxSelect>>', lambda event: self.enable_button_touch())
         self.delete.bind('<Button-1>', lambda event: self.delete_password())
         self.delete_all.bind('<Button-1>', lambda event: self.delete_all_passwords())
+        add.bind('<Button-1>', lambda event: self.add_password())
     
     def enable_button_touch(self):
         if len(self.passwords.name_passwords) > 0:
@@ -186,3 +176,6 @@ class App(Tk):
         except TclError:
             self.disable_button_touch()
             return
+    
+    def add_password(self):
+        self.windows.add_password(self)
