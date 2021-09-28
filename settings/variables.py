@@ -16,8 +16,9 @@ path_to_passwords_json = path_join(path_to_passwords, 'passwords.json')
 
 default_settings = {
     'first_start': 1,
+    'auto_update': 1,
     'font-color': '#494949',
-    'back-color': '#DBDBDB' 
+    'back-color': '#DBDBDB'
 }
 default_passwords = {
     'Пример': {
