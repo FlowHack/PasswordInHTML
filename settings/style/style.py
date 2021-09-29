@@ -8,7 +8,7 @@ BUTTON_BACKGROUND = '#6D6D6D'
 light_theme = {
     'font-color': '#494949',
     'back-color': '#DBDBDB',
-    'back_card_color': '#f1efef',
+    'back_card_color': '#f1efef'
 }
 
 dark_theme = {

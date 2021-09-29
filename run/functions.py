@@ -11,6 +11,7 @@ from os.path import join as path_join
 from shutil import rmtree
 from tkinter.messagebox import askyesnocancel, showerror, showinfo, showwarning
 from typing import Union
+from requests.exceptions import ConnectionError
 
 import clipboard
 import requests

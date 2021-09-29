@@ -7,10 +7,22 @@ from tkinter.messagebox import showwarning
 from PIL import Image, ImageTk
 
 from run import set_position_window_on_center
-from settings import PERSON_AGREEMENT, path_to_little_ico, style
+from settings import PERSON_AGREEMENT, path_to_little_ico, style, path_to_passwords_settings
 from settings.encryption import Encryption
+import hashlib
 
-from .functions import Passwords, get_settings
+from .functions import Passwords, get_settings, write_dict_in_file
+
+def entry_normal(entry):
+            style.style_for_normal_entry()
+            entry.configure(style='Normal.TEntry')
+            entry.update()
+        
+def set_warning_entry(entry):
+    style.style_for_warning_entry()
+    entry.configure(style='Warning.TEntry')
+    entry.update()
+    entry.after(3000, lambda: entry_normal(entry))
 
 
 class PersonAndAgreementData:
@@ -121,6 +133,7 @@ class AddPassword:
         self.edit = edit
         self.name = name
         self.decode = False
+        self.parent = parent
 
         self.window = Toplevel(parent)
         self.initialize_ui()
@@ -206,7 +219,6 @@ class AddPassword:
         right_frame.columnconfigure(0, weight=1)
         right_frame.rowconfigure(0, weight=1)
 
-
         self.completetion_entry_columns()
 
         btn_cancel.bind('<Button-1>', lambda event: self.close())
@@ -230,7 +242,10 @@ class AddPassword:
         ico = ImageTk.PhotoImage(Image.open(
             path_to_little_ico
         ))
-        self.window.title('Добавление пароля')
+        if self.edit:
+            self.window.title('Редактирование пароля')
+        else:
+            self.window.title('Добавление пароля')
         self.window.minsize(w, h)
         self.window.maxsize(w, h)
         set_position_window_on_center(self.window, w, h)
@@ -255,6 +270,11 @@ class AddPassword:
             self.entry_columns.insert(0, settings['default_columns'])
     
     def decode_columns_values(self):
+        if Encryption().hash_password_decode is not None:
+            result = Windows(parent=self.parent).entry_password()
+            if not result:
+                return
+            
         columns = self.entry_columns.get()
         values = self.entry_values.get()
 
@@ -273,17 +293,6 @@ class AddPassword:
         self.decode = True
     
     def add_password(self):
-        def entry_normal(entry):
-            style.style_for_normal_entry()
-            entry.configure(style='Normal.TEntry')
-            entry.update()
-        
-        def set_warning_entry(entry):
-            style.style_for_warning_entry()
-            entry.configure(style='Warning.TEntry')
-            entry.update()
-            entry.after(3000, lambda: entry_normal(entry))
-
         name = self.entry_name.get()
         if name in Passwords().name_passwords and not self.edit:
             showwarning(
@@ -335,6 +344,273 @@ class AddPassword:
         }
         self.window.destroy()
 
+class SetEditPasswordDecode:
+    def __init__(self, parent, edit=False):
+        self.edit = edit
+        self.password = None
+        self.show = False
+        self.parent = parent
+
+        self.window = Toplevel(parent)
+        self.initialize_ui()
+
+        left_frame = ttk.Frame(self.window, padding=5)
+        left_frame.grid(column=0, row=0, sticky='NSWE')
+        if edit:
+            old_password_frame = ttk.Frame(left_frame, padding=3)
+            old_password_frame.grid(column=0, row=0, sticky='NSE')
+            old_password_frame.columnconfigure(0, weight=1)
+            old_password_frame.columnconfigure(1, weight=1)
+        new_password_frame = ttk.Frame(left_frame, padding=5)
+        new_password_frame.grid(column=0, row=1, sticky='NSE')
+        new_password_retry_frame = ttk.Frame(left_frame, padding=3)
+        new_password_retry_frame.grid(column=0, row=2, sticky='NSE')
+        right_frame = ttk.Frame(self.window, padding=5)
+        right_frame.grid(column=1, row=0, sticky='NSWE')
+        right_frame_button = ttk.Frame(right_frame, padding=1)
+        right_frame_button.grid(column=0, row=0, sticky='WE')
+
+        if edit:
+            ttk.Label(
+                old_password_frame, text='Старый пароль',
+                font=('Times New Roman', 12, 'bold italic')
+            ).grid(row=0, column=0, sticky='E')
+            self.old_entry = ttk.Entry(
+                old_password_frame, width=39, font=('Times New Roman', 12),
+                show='*'
+            )
+            self.old_entry.grid(row=0, column=1, sticky='WE', padx=5)
+        ttk.Label(
+            new_password_frame, text='Новый пароль',
+            font=('Times New Roman', 12, 'bold italic')
+        ).grid(row=0, column=0, sticky='E')
+        self.new_entry = ttk.Entry(
+            new_password_frame, width=39, font=('Times New Roman', 12),
+            show='*'
+        )
+        self.new_entry.grid(row=0, column=1, sticky='WE', padx=5)
+        ttk.Label(
+            new_password_retry_frame, text='Повторите пароль',
+            font=('Times New Roman', 12, 'bold italic')
+        ).grid(row=0, column=0, sticky='E')
+        self.retry_entry = ttk.Entry(
+            new_password_retry_frame, width=39, font=('Times New Roman', 12),
+            show='*'
+        )
+        self.retry_entry.grid(row=0, column=1, sticky='WE', padx=5)
+
+        ttk.Button(
+            right_frame_button, text='Применить', 
+            command=lambda: self.add_edit()
+        ).grid(column=0, row=0, sticky='WE', pady=2)
+        ttk.Button(
+            right_frame_button, text='Отменить', 
+            command=lambda: self.close()
+        ).grid(column=0, row=1, sticky='WE')
+        ttk.Button(
+            right_frame_button, text='Показать', 
+            command=lambda: self.show_or_not()
+        ).grid(column=0, row=2, sticky='WE', pady=2)
+
+        self.window.columnconfigure(0, weight=1)
+        self.window.columnconfigure(1, weight=1)
+        self.window.rowconfigure(0, weight=1)
+        left_frame.columnconfigure(0, weight=1)
+        left_frame.rowconfigure(0, weight=1)
+        left_frame.rowconfigure(1, weight=1)
+        left_frame.rowconfigure(2, weight=1)
+        new_password_frame.columnconfigure(0, weight=1)
+        new_password_frame.columnconfigure(1, weight=1)
+        new_password_retry_frame.columnconfigure(0, weight=1)
+        new_password_retry_frame.columnconfigure(1, weight=1)
+        right_frame.columnconfigure(0, weight=1)
+        right_frame.rowconfigure(0, weight=1)
+
+        self.window.bind('<Return>', lambda event: self.add_edit())
+        self.window.bind('<Escape>', lambda event: self.close())
+
+    def initialize_ui(self):
+        """
+        Инициализация окна
+        :return:
+        """
+        style.set_global_style(self.window)
+
+        w = 600
+        if self.edit:
+            h = 115
+        else:
+            h = 103
+        ico = ImageTk.PhotoImage(Image.open(
+            path_to_little_ico
+        ))
+        if self.edit:
+            self.window.title('Редактирование пароля дешифровки')
+        else:
+            self.window.title('Добавление пароля дешифровки')
+        self.window.minsize(w, h)
+        self.window.maxsize(w, h)
+        set_position_window_on_center(self.window, w, h)
+        self.window.tk.call(
+            'wm', 'iconphoto', self.window._w, ico
+        )
+    
+    def show_or_not(self):
+        if not self.show:
+            if self.edit:
+                self.old_entry.configure(show='')
+            self.new_entry.configure(show='')
+            self.retry_entry.configure(show='')
+            self.show = True
+        else:
+            if self.edit:
+                self.old_entry.configure(show='*')
+            self.new_entry.configure(show='*')
+            self.retry_entry.configure(show='*')
+            self.show = False
+    
+    def add_edit(self):
+        new = self.new_entry.get()
+        retry = self.retry_entry.get()
+        if self.edit:
+            old = self.old_entry.get()
+            if len(old) == 0:
+                set_warning_entry(self.old_entry)
+                return
+            if hashlib.md5(bytes(old, 'utf-8')).hexdigest()  \
+                 != Encryption().hash_password_decode:
+                showwarning(
+                    'Неверный пароль',
+                    'Введенный вами старый пароль не верный!'
+                )
+                set_warning_entry(self.old_entry)
+                return
+        
+        if len(new) == 0:
+            set_warning_entry(self.new_entry)
+            return
+        if len(retry) == 0:
+            set_warning_entry(self.retry_entry)
+            return
+        
+        if new != retry:
+            showwarning(
+                'Не совпадают пароли!',
+                'Новый и повторяющийся пароли не совпадают'
+            )
+            set_warning_entry(self.new_entry)
+            set_warning_entry(self.retry_entry)
+            return
+        
+        self.password = new
+        self.window.destroy()
+
+    def close(self):
+        self.password = None
+        self.window.destroy()
+
+class EntryPassword:
+    def __init__(self, parent):
+        self.result = False
+        self.show = False
+
+        self.window = Toplevel(parent)
+        self.initialize_ui()
+
+        left_frame = ttk.Frame(self.window, padding=3)
+        right_frame = ttk.Frame(self.window, padding=2)
+        pass_frame = ttk.Frame(left_frame)
+        button_frame = ttk.Frame(right_frame)
+        left_frame.grid(row=0, column=0, sticky='NSWE')
+        right_frame.grid(row=0, column=1, sticky='NSWE')
+        pass_frame.grid(row=0, column=0, sticky='WE')
+        button_frame.grid(row=0, column=0, sticky='NSWE')
+
+        ttk.Label(
+            pass_frame, text='Пароль дешифровки', 
+            font=('Times New Roman', 12, 'bold italic')
+        ).grid(row=0, column=0, sticky='E')
+        self.entry_password = ttk.Entry(
+            pass_frame, font=('Times New Roman', 12), width=39,
+            show='*'
+        )
+        self.entry_password.grid(row=0, column=1, sticky='E', padx=5)
+
+        ttk.Button(
+            button_frame, text='Применить',
+            command=lambda: self.done()
+        ).grid(row=0, column=0 ,sticky='WE', pady=3)
+        ttk.Button(
+            button_frame, text='Отмена',
+            command=lambda: self.close()
+        ).grid(row=1, column=0 ,sticky='WE')
+        ttk.Button(
+            button_frame, text='Показать',
+            command=lambda: self.show_or_not()
+        ).grid(row=2, column=0 ,sticky='WE')
+
+        self.window.columnconfigure(0, weight=1)
+        self.window.columnconfigure(1, weight=1)
+        self.window.rowconfigure(0, weight=1)
+        left_frame.columnconfigure(0, weight=1)
+        left_frame.rowconfigure(0, weight=1)
+        right_frame.columnconfigure(0, weight=1)
+        right_frame.rowconfigure(0, weight=1)
+
+        self.window.bind('<Return>', lambda event: self.done())
+        self.window.bind('<Escape>', lambda event: self.close())
+    
+    def initialize_ui(self):
+        """
+        Инициализация окна
+        :return:
+        """
+        style.set_global_style(self.window)
+
+        w = 600
+        h = 103
+        ico = ImageTk.PhotoImage(Image.open(
+            path_to_little_ico
+        ))
+        self.window.title('Введите пароль дешифровки')
+        self.window.minsize(w, h)
+        self.window.maxsize(w, h)
+        set_position_window_on_center(self.window, w, h)
+        self.window.tk.call(
+            'wm', 'iconphoto', self.window._w, ico
+        )
+
+    def done(self):
+        password = self.entry_password.get()
+        password_decode = Encryption().hash_password_decode
+
+        if len(password) == 0:
+            set_warning_entry(self.entry_password)
+            return
+        
+        if hashlib.md5(bytes(password, 'utf-8')).hexdigest() != password_decode:
+            showwarning(
+                'Неверный пароль',
+                'Вы ввели неверный пароль'
+            )
+            set_warning_entry(self.entry_password)
+            return
+        
+        self.result = True
+        self.window.destroy()
+
+    def close(self):
+        self.result = None
+        self.window.destroy()
+
+    def show_or_not(self):
+        if self.show:
+            self.show = False
+            self.entry_password.configure(show='*')
+        else:
+            self.show = True
+            self.entry_password.configure(show='')
+
 class Windows:
     """
     Класс дополнительных окон
@@ -343,6 +619,8 @@ class Windows:
     def __init__(self, parent=None):
         self.person_and_agreement_data_window = PersonAndAgreementData
         self._add_password_or_edit = AddPassword
+        self.set_edit_password_decode = SetEditPasswordDecode
+        self.entry_password_ = EntryPassword
         self.parent = parent
 
     def person_and_agreement_data(self):
@@ -368,3 +646,21 @@ class Windows:
         else:
             Passwords().add_password(password)
         return True
+    
+    def set_or_edit_password_decode(self, edit=False):
+        window = self.set_edit_password_decode(self.parent, edit)
+        window.window.wait_window()
+        password = window.password
+        if password is None:
+            return False
+        
+        passwords_set = Encryption().settings
+        passwords_set['password_decode'] =  \
+            hashlib.md5(bytes(password, 'utf-8')).hexdigest()
+        write_dict_in_file(path_to_passwords_settings, passwords_set)
+        return True
+    
+    def entry_password(self):
+        window = self.entry_password_(self.parent)
+        window.window.wait_window()
+        return window.result

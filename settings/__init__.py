@@ -11,6 +11,7 @@ __all__ = [
     'path_to_main_style',
     'path_to_settings_json',
     'path_to_little_ico',
+    'path_to_passwords_settings',
     'PERSON_AGREEMENT',
     'LOGGER',
     'clean_after_app',

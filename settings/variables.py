@@ -30,9 +30,11 @@ path_to_html = path_join(path_to_passwords, 'PasswordsInHTML.html')
 default_settings = {
     'first_start': 1,
     'auto_update': 1,
-    'font-color': '#494949',
-    'back-color': '#DBDBDB',
-    'back_card_color': '#f1efef',
+    'theme': {
+        'font-color': '#494949',
+        'back-color': '#DBDBDB',
+        'back_card_color': '#f1efef'
+    },
     'default_columns': 'Логин&&Пароль'
 }
 

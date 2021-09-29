@@ -3,7 +3,7 @@ from logging import INFO, Formatter, getLogger
 from logging.handlers import RotatingFileHandler
 from sys import exit as exit_ex
 
-from settings import path_to_little_ico, path_to_settings
+from settings import path_to_little_ico, path_to_settings, path_to_html
 
 
 def __get_logger__(name: str, file: str) -> object:
@@ -44,6 +44,8 @@ def clean_after_app():
 
     if os.path.isfile(path_to_little_ico):
         os.remove(path_to_little_ico)
+    if os.path.isfile(path_to_html):
+        os.remove(path_to_html)
     
     logger.warning('Очистка окончена? закрываю программу')
     exit_ex()

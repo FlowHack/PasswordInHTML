@@ -1,8 +1,10 @@
 {
     "first_start": 0,
     "auto_update": 0,
-    "font-color": "#494949",
-    "back-color": "#DBDBDB",
-    "back_card_color": "#f1efef",
+    "theme": {
+        "font-color": "#DBDBDB",
+        "back-color": "#494949",
+        "back_card_color": "#292929"
+    },
     "default_columns": "Логин&&Пароль"
 }

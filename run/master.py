@@ -1,5 +1,6 @@
 from gc import enable
 from os.path import isfile
+from settings.encryption import Encryption
 from sys import exit as exit_ex
 from tkinter import Listbox, TclError, Tk, ttk, IntVar
 
@@ -9,7 +10,7 @@ from run import unzip_file
 from run.windows import Windows
 from settings import *
 
-from .functions import Passwords, check_update, set_position_window_on_center
+from .functions import Passwords, check_update, get_settings, set_position_window_on_center, write_dict_in_file
 from .html_generate import generate_template
 
 
@@ -30,7 +31,6 @@ class App(Tk):
         self.app_ico = self.get_app_ico()
         self.initialize_ui()
 
-        #  Панель вкладок в окне
         notebook = ttk.Notebook(self)
         self.main = ttk.Frame(notebook, padding=15)
         self.settings = ttk.Frame(notebook)
@@ -90,6 +90,8 @@ class App(Tk):
     def build_settings(self):
         theme_frame = ttk.Frame(self.settings)
         theme_frame.grid(row=0, column=0, sticky='NWE', padx=5, pady=5)
+        password_frame = ttk.Frame(self.settings)
+        password_frame.grid(row=1, column=0, sticky='NWE', padx=5)
         load_frame = ttk.Frame(self.settings)
         load_frame.grid(row=0, column=1, padx=8, sticky='NWE')
 
@@ -101,11 +103,15 @@ class App(Tk):
         self.loading_set.grid_remove()
 
         ttk.Label(
-            theme_frame, text='Тема оформления', 
+            theme_frame, text='Тема оформления',
             font=('Times New Roman', 13, 'bold italic')
         ).grid(row=0, column=0, sticky='NE')
         self.theme_var = IntVar()
-        self.theme_var.set(0)
+        settings = get_settings()
+        if settings['theme'] == style.dark_theme:
+            self.theme_var.set(1)
+        else:
+            self.theme_var.set(0)
         theme_light = ttk.Radiobutton(
             theme_frame, text='Светлая', value=0, variable=self.theme_var
         )
@@ -116,21 +122,58 @@ class App(Tk):
         theme_light.grid(row=0, column=1, sticky='WN', padx=10)
         theme_dark.grid(row=0, column=2, sticky='WN')
 
+        if Encryption().hash_password_decode is None:
+            ttk.Button(
+                password_frame, text='Установить пароль для дешифровки',
+                command=lambda: self.add_edit_password_decript()
+            ).grid(row=0, column=0, sticky='NWE')
+        else:
+            ttk.Button(
+                password_frame, text='Сменить пароль для дешифровки',
+                command=lambda: self.add_edit_password_decript(edit=True)
+            ).grid(row=0, column=0, sticky='NWE')
+            ttk.Button(
+                password_frame, text='Удалить пароль для дешифровки',
+                command=lambda: self.delete_password_decode()
+            ).grid(row=0, column=1, sticky='NWE', padx=5)
+
         theme_light.bind('<Button-1>', lambda event: self.click_to_radio_theme())
         theme_dark.bind('<Button-1>', lambda event: self.click_to_radio_theme())
 
         self.settings.columnconfigure(0, weight=1)
         load_frame.rowconfigure(0, weight=1)
     
+    def add_edit_password_decript(self, edit=False):
+        Windows(self).set_or_edit_password_decode(edit)
+        self.build_settings()
+    
+    def delete_password_decode(self):
+        if Encryption().hash_password_decode is not None:
+            result = Windows(parent=self).entry_password()
+            if not result:
+                return
+        
+        settings = Encryption().settings
+        del settings['password_decode']
+        write_dict_in_file(path_to_passwords_settings, settings)
+        self.build_settings()
+    
     def click_to_radio_theme(self):
         var = self.theme_var.get()
+        settings = get_settings()
+
         if var == 0:
             self.theme_var.set(1)
+            self.loading_set.grid()
+            self.loading_set.after(4000, lambda: self.loading_set.grid_remove())
+            settings['theme'] = style.dark_theme
+            write_dict_in_file(path_to_settings_json, settings)
         else:
             self.theme_var.set(0)
-            
-
-        print(var)
+            self.loading_set.grid()
+            self.loading_set.after(4000, lambda: self.loading_set.grid_remove())
+            settings['theme'] = style.light_theme
+            write_dict_in_file(path_to_settings_json, settings)
     
     def generate_main(self):
         top_frame = ttk.Frame(self.main, padding=2)
@@ -236,6 +279,11 @@ class App(Tk):
             self.list_password.insert(i, name_password)
     
     def delete_password(self):
+        if Encryption().hash_password_decode is not None:
+            result = Windows(parent=self).entry_password()
+            if not result:
+                return
+
         name = self.get_record()
         if name is None:
             return
@@ -243,6 +291,11 @@ class App(Tk):
         self.update_list()
     
     def delete_all_passwords(self):
+        if Encryption().hash_password_decode is not None:
+            result = Windows(parent=self).entry_password()
+            if not result:
+                return
+
         Passwords().delete_all_passwords()
         self.update_list()
 
@@ -260,9 +313,10 @@ class App(Tk):
         self.update_list()
     
     def edit_password(self):
-        name = self.get_record()
-        if name is None:
-            return 
+        if Encryption().hash_password_decode is not None:
+            name = self.get_record()
+            if name is None:
+                return 
         
         windows = Windows(self)
         windows.add_password_or_edit(edit=True, name=name)

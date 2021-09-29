@@ -19,9 +19,6 @@ template_html = """<!DOCTYPE html>
 
 </html>"""
 
-settings = get_settings()
-background, foreground = settings['back-color'], settings['font-color']
-card_background = settings['back_card_color']
 template_style_1 = """
 <style>
 body, h1, h2, h3, h4, p, a, label {
@@ -30,7 +27,7 @@ body, h1, h2, h3, h4, p, a, label {
     font-weight: normal
 }
 body {"""
-template_style_2 = f"""
+template_style_2 = """
     font-family: 'Times New Roman', 'Arial', sans-serif;
     background: {background};
     color: {foreground};"""
@@ -47,7 +44,7 @@ details > summary {
     padding-top: 1rem;
 }
 .card{"""
-template_style_4 = f"""
+template_style_4 = """
     margin: 5px auto;
     width: 75%;
     border-radius: 30px;
@@ -88,9 +85,6 @@ template_style_5 = """
 }
 </style>"""
 
-template_style = template_style_1 + template_style_2 + template_style_3  \
-     + template_style_4 + template_style_5
-
 def start_template(html):
     write_file(path_to_html, html)
     web_open(path_to_html, new=2)
@@ -99,8 +93,17 @@ def generate_template():
     html = template_html
     passwords_dict, name_passwords = Passwords().get_passwords()
     encryption = Encryption()
-    body = template_style
+    settings = get_settings()
+    theme = settings['theme']
+    background, foreground = theme['back-color'], theme['font-color']
+    card_background = theme['back_card_color']
     cards = ''
+
+    template_style = template_style_1 + template_style_2.format(
+        background=background, foreground=foreground
+    ) + template_style_3 + template_style_4.format(
+        card_background=card_background
+    ) + template_style_5
 
     for name, record in passwords_dict.items():
         columns = encryption.decryption(record['columns']).split('&&')

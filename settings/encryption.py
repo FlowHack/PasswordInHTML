@@ -10,11 +10,15 @@ class Encryption:
         if not isfile(path_to_passwords_settings):
             self.create_passwords_settings()
 
-        settings = get_dict_from_json_file(path_to_passwords_settings)
+        self.settings = get_dict_from_json_file(path_to_passwords_settings)
         
-        self.alphabet, self.step = settings['alphabet'], settings['step']
+        if 'password_decode' in list(self.settings.keys()):
+            self.hash_password_decode = self.settings['password_decode']
+        else:
+            self.hash_password_decode = None
+        self.alphabet, self.step = self.settings['alphabet'], self.settings['step']
         self.reversed_alphabet = {}
-        for number, symbol in settings['reversed_alphabet'].items():
+        for number, symbol in self.settings['reversed_alphabet'].items():
             self.reversed_alphabet[int(number)] = symbol
     
     @staticmethod
