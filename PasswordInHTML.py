@@ -1,7 +1,7 @@
 import gc
-from os import remove as file_remove
-from os.path import isfile, isdir
 from os import mkdir
+from os import remove as file_remove
+from os.path import isdir, isfile
 from sys import exit as exit_ex
 from sys import platform
 from time import sleep as time_sleep
@@ -15,9 +15,8 @@ from PIL import Image, ImageTk
 
 from run import App, Windows, get_settings, unzip_file, write_dict_in_file
 from settings import (LOGGER, clean_after_app, default_settings,
-                      path_ico_screen_saver, path_icos_zip,
-                      path_to_settings_json, path_to_style, path_to_passwords)
-
+                      path_ico_screen_saver, path_icos_zip, path_to_passwords,
+                      path_to_settings_json, path_to_style)
 
 if platform in ['linux']:
     OS = 'Linux'

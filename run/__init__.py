@@ -17,5 +17,6 @@ __all__ = [
     'Windows',
     'get_passwords',
     'get_settings',
+    'generate_template',
     'App'
 ]

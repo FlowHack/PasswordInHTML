@@ -25,12 +25,14 @@ path_to_static = path_join(path_to_settings, 'static')
 path_to_passwords = path_join(path_to_settings, 'passwords')
 path_to_passwords_settings = path_join(path_to_passwords, 'passwords.settings')
 path_to_passwords_json = path_join(path_to_passwords, 'passwords.json')
+path_to_html = path_join(path_to_passwords, 'PasswordsInHTML.html')
 
 default_settings = {
     'first_start': 1,
     'auto_update': 1,
     'font-color': '#494949',
     'back-color': '#DBDBDB',
+    'back_card_color': '#f1efef',
     'default_columns': 'Логин&&Пароль'
 }
 

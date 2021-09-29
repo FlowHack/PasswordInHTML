@@ -1,22 +1,24 @@
+import subprocess
+import tempfile
 import zipfile
 from json import dump as dump_json
 from json import dumps as dumps_json
 from json import load as load_json
 from json import loads as loads_json
+from os import system as os_system
 from os.path import isfile
 from os.path import join as path_join
-from typing import Union
-import subprocess
 from shutil import rmtree
-import tempfile
-import zipfile
-import requests
-from os import system as os_system
-from tkinter.messagebox import showerror, showinfo, askyesnocancel, showwarning
+from tkinter.messagebox import askyesnocancel, showerror, showinfo, showwarning
+from typing import Union
 
 import clipboard
+import requests
 
-from settings import clean_after_app, REPO_BRANCH_UPDATER, UPDATE_LINUX, path_to_updater, UPDATE_WIN, VERSION, path, path_to_settings_json, path_to_passwords_json, LOGGER, path_to_version, REPO_URL_VERSION, REPO_URL_UPDATER
+from settings import (LOGGER, REPO_BRANCH_UPDATER, REPO_URL_UPDATER,
+                      REPO_URL_VERSION, UPDATE_LINUX, UPDATE_WIN, VERSION,
+                      clean_after_app, path, path_to_passwords_json,
+                      path_to_settings_json, path_to_updater, path_to_version)
 
 
 def set_position_window_on_center(parent, width: int, height: int) -> None:

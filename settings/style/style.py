@@ -7,12 +7,14 @@ DEFAULT_STYLE = 'awdark'
 BUTTON_BACKGROUND = '#6D6D6D'
 light_theme = {
     'font-color': '#494949',
-    'back-color': '#DBDBDB' 
+    'back-color': '#DBDBDB',
+    'back_card_color': '#f1efef',
 }
 
 dark_theme = {
     'font-color': '#DBDBDB',
-    'back-color': '#494949'
+    'back-color': '#494949',
+    'back_card_color': '#292929'
 }
 
 def set_global_style(parent: object) -> None:

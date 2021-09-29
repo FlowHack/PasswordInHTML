@@ -4,13 +4,13 @@ from time import time
 from tkinter import Text, Tk, Toplevel, messagebox, ttk
 from tkinter.messagebox import showwarning
 
-from PIL import ImageTk, Image
+from PIL import Image, ImageTk
 
 from run import set_position_window_on_center
 from settings import PERSON_AGREEMENT, path_to_little_ico, style
-from settings import encryption
-from .functions import get_settings, Passwords
 from settings.encryption import Encryption
+
+from .functions import Passwords, get_settings
 
 
 class PersonAndAgreementData:

@@ -1,15 +1,16 @@
 from gc import enable
 from os.path import isfile
-from run.windows import Windows
 from sys import exit as exit_ex
-from tkinter import Tk, ttk, Listbox, TclError
+from tkinter import Listbox, TclError, Tk, ttk, IntVar
 
 from PIL import Image, ImageTk
 
 from run import unzip_file
+from run.windows import Windows
 from settings import *
 
-from .functions import set_position_window_on_center, Passwords, check_update
+from .functions import Passwords, check_update, set_position_window_on_center
+from .html_generate import generate_template
 
 
 class App(Tk):
@@ -83,7 +84,53 @@ class App(Tk):
     
     def build(self):
         self.generate_main()
+        self.build_settings()
         self.update()
+    
+    def build_settings(self):
+        theme_frame = ttk.Frame(self.settings)
+        theme_frame.grid(row=0, column=0, sticky='NWE', padx=5, pady=5)
+        load_frame = ttk.Frame(self.settings)
+        load_frame.grid(row=0, column=1, padx=8, sticky='NWE')
+
+        self.loading_set = ttk.Label(
+            load_frame, text='Изменение', font=('Times New Roman', 13, 'bold italic'),
+            foreground='#00FF74'
+        )
+        self.loading_set.grid(row=0, column=0, sticky='WE')
+        self.loading_set.grid_remove()
+
+        ttk.Label(
+            theme_frame, text='Тема оформления', 
+            font=('Times New Roman', 13, 'bold italic')
+        ).grid(row=0, column=0, sticky='NE')
+        self.theme_var = IntVar()
+        self.theme_var.set(0)
+        theme_light = ttk.Radiobutton(
+            theme_frame, text='Светлая', value=0, variable=self.theme_var
+        )
+        theme_dark = ttk.Radiobutton(
+            theme_frame, text='Темная', value=1, variable=self.theme_var
+        )
+
+        theme_light.grid(row=0, column=1, sticky='WN', padx=10)
+        theme_dark.grid(row=0, column=2, sticky='WN')
+
+        theme_light.bind('<Button-1>', lambda event: self.click_to_radio_theme())
+        theme_dark.bind('<Button-1>', lambda event: self.click_to_radio_theme())
+
+        self.settings.columnconfigure(0, weight=1)
+        load_frame.rowconfigure(0, weight=1)
+    
+    def click_to_radio_theme(self):
+        var = self.theme_var.get()
+        if var == 0:
+            self.theme_var.set(1)
+        else:
+            self.theme_var.set(0)
+            
+
+        print(var)
     
     def generate_main(self):
         top_frame = ttk.Frame(self.main, padding=2)
@@ -143,6 +190,7 @@ class App(Tk):
         self.edit.bind('<Button-1>', lambda event: self.edit_password())
         btn_search.bind('<Button-1>', lambda event: self.completetion_into_listbox(True))
         btn_throw_off.bind('<Button-1>', lambda event: self.throw_off())
+        generate.bind('<Button-1>', lambda event: generate_template())
     
     def update_list(self):
         self.list_password.delete(0, 'end')

@@ -3,5 +3,6 @@
     "auto_update": 0,
     "font-color": "#494949",
     "back-color": "#DBDBDB",
+    "back_card_color": "#f1efef",
     "default_columns": "Логин&&Пароль"
 }

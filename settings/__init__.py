@@ -26,5 +26,6 @@ __all__ = [
     'VERSION',
     'UPDATE_WIN',
     'UPDATE_LINUX',
+    'path_to_html',
     'style'
 ]
