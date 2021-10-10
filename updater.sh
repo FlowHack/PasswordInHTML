@@ -15,6 +15,7 @@ python3 updater.py
 
 cd $PWD
 cd ..
-chmod +x PassswordInHTML.py
-chmod +x PassswordInHTML.sh
+echo "Делаю программу исполняемой"
+sudo chmod 777 PassswordInHTML.py
+sudo chmod 777 PassswordInHTML.sh
 rm -r FlowParserVk-control-updater
