@@ -261,7 +261,11 @@ class Updater(Tk):
         self.info_lbl.configure(text='Готово!')
         self.info_lbl.update()
 
-        shutil.rmtree(os.path.join(path_app, 'venv'), ignore_errors=True, onerror=None)
+        if platform in ['linux']:
+            shutil.rmtree(os.path.join(path_app, 'venv'), ignore_errors=True, onerror=None)
+            os.system(f'sudo chmod 777 {os.path.join(path_app, "PassswordInHTML.py")}')
+            os.system(f'sudo chmod 777 {os.path.join(path_app, "PassswordInHTML.py")}')
+        os.system(f'sudo rm -r {os.path.join(path_app, "FlowParserVk-control-updater")}')
 
         if platform in ['linux']:
             self.btn_start.configure(text='Закрыть')
