@@ -56,5 +56,6 @@ else
 	fi
 
 	echo "!!!!!Запуск программы!!!!!"
+	cd $path
 	python3 $open_application
 fi
