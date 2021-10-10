@@ -1,9 +1,12 @@
 #!/bin/bash
 
 file="$PWD/venv"
+path=$PWD
+path_to_ico="$PWD/PasswordInHTML.ico"
+open_file="$PWD/PasswordInHTML.sh"
 
 if [ -d $file ]; then
-	$PWD/venv/bin/python3 main.py
+	$PWD/venv/bin/python3 PasswordInHTML.py
 else
 	echo "!!!!!Обновление python3 до актуальной версии!!!!!"
 	sudo apt reinstall python3 -y
@@ -31,6 +34,25 @@ else
 	pip3 install wheel
 	pip3 install -r requirements.txt
 
+	echo "Создать ярлык программы? [y,n]"
+	read yesorno
+
+	if [[ $pie == y* ]]; then
+    	echo "Создаю ярлык"
+		sudo cd /usr/share/applications/
+		sudo echo "[Desktop Entry]\n
+		Name=PasswordInHTML\n
+		Comment=Программа для хранения паролей\n
+		Exec=sh $open_file\n
+		Terminal=false\n
+		Type=Application\n
+		Icon=$path_to_ico\n
+		Path=$path\n
+		Categories=System" > PasswordInHTML.Desktop
+	else
+    	echo "Отмена создани ярлыка"
+	fi
+
 	echo "!!!!!Запуск программы!!!!!"
-	python3 main.py
+	python3 PasswordInHTML.py
 fi
