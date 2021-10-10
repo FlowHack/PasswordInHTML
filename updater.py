@@ -263,9 +263,9 @@ class Updater(Tk):
 
         if platform in ['linux']:
             shutil.rmtree(os.path.join(path_app, 'venv'), ignore_errors=True, onerror=None)
-            os.system(f'sudo chmod 777 {os.path.join(path_app, "PassswordInHTML.py")}')
-            os.system(f'sudo chmod 777 {os.path.join(path_app, "PassswordInHTML.py")}')
-        os.system(f'sudo rm -r {os.path.join(path_app, "FlowParserVk-control-updater")}')
+            os.system(f'sudo chmod 777 {os.path.join(path_app, "PasswordInHTML.py")}')
+            os.system(f'sudo chmod 777 {os.path.join(path_app, "PasswordInHTML.sh")}')
+        os.system(f'sudo rm -r {os.path.join(path_app, REPO_UPDATER_BRANCH)}')
 
         if platform in ['linux']:
             self.btn_start.configure(text='Закрыть')
