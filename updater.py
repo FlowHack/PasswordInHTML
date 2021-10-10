@@ -261,7 +261,7 @@ class Updater(Tk):
         self.info_lbl.configure(text='Готово!')
         self.info_lbl.update()
 
-        shutil.rmtree('venv', ignore_errors=True, onerror=None)
+        shutil.rmtree(os.path.join(path_app, 'venv'), ignore_errors=True, onerror=None)
 
         if platform in ['linux']:
             self.btn_start.configure(text='Закрыть')
