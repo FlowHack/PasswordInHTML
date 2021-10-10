@@ -41,16 +41,16 @@ else
 	if [[ $yesorno == y* ]]; then
     	echo "Создаю ярлык"
 		cd /usr/share/applications/
-		sudo touch PasswordInHTML.Desktop  
-		echo "[Desktop Entry]\n
-		Name=PasswordInHTML\n
-		Comment=Программа для хранения паролей\n
-		Exec=sh $open_file\n
-		Terminal=false\n
-		Type=Application\n
-		Icon=$path_to_ico\n
-		Path=$path\n
-		Categories=System" | sudo tee PasswordInHTML.Desktop
+		sudo touch PasswordInHTML.desktop  
+		echo "[Desktop Entry]
+Name=PasswordInHTML
+Comment=Программа для хранения паролей
+Exec=sh $open_file
+Terminal=false
+Type=Application
+Icon=$path_to_ico
+Path=$path
+Categories=System" | sudo tee PasswordInHTML.desktop
 	else
     	echo "Отмена создани ярлыка"
 	fi
