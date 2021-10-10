@@ -10,7 +10,7 @@ from run import unzip_file
 from run.windows import Windows
 from settings import *
 
-from .functions import Passwords, check_update, get_settings, set_position_window_on_center, write_dict_in_file
+from .functions import Passwords, check_update, get_settings, set_position_window_on_center, update_app, write_dict_in_file
 from .html_generate import generate_template
 
 
@@ -89,9 +89,11 @@ class App(Tk):
     
     def build_settings(self):
         theme_frame = ttk.Frame(self.settings)
-        theme_frame.grid(row=0, column=0, sticky='NWE', padx=5, pady=5)
+        theme_frame.grid(row=0, column=0, sticky='NWE', padx=5)
         password_frame = ttk.Frame(self.settings)
-        password_frame.grid(row=1, column=0, sticky='NWE', padx=5)
+        password_frame.grid(row=1, column=0, sticky='NWE', padx=5, pady=5)
+        update_frame = ttk.Frame(self.settings)
+        update_frame.grid(row=2, column=0, sticky='NWE', padx=5)
         load_frame = ttk.Frame(self.settings)
         load_frame.grid(row=0, column=1, padx=8, sticky='NWE')
 
@@ -136,12 +138,55 @@ class App(Tk):
                 password_frame, text='Удалить пароль для дешифровки',
                 command=lambda: self.delete_password_decode()
             ).grid(row=0, column=1, sticky='NWE', padx=5)
+        
+        ttk.Label(
+            update_frame, text='Автообновление', 
+            font=('Times New Roman', 13, 'bold italic')
+        ).grid(row=0, column=0, sticky='WN')
+        self.auto_update_var = IntVar()
+        settings = get_settings()
+        if settings['auto_update'] == 1:
+            self.auto_update_var.set(1)
+        else:
+            self.auto_update_var.set(0)
+        autoupdate_on = ttk.Radiobutton(
+            update_frame, text='Включено', value=1, variable=self.auto_update_var
+        )
+        autoupdate_off = ttk.Radiobutton(
+            update_frame, text='Отключено', value=0, variable=self.auto_update_var
+        )
+        ttk.Button(
+            update_frame, text='Проверить наличие обновления',
+            command=lambda: check_update(os_name=self.OS, call=True),
+            cursor='exchange' 
+        ).grid(row=0, column=3, sticky='W', padx=5)
+        autoupdate_on.grid(row=0, column=1, sticky='NW', padx=5)
+        autoupdate_off.grid(row=0, column=2, sticky='NW')
 
         theme_light.bind('<Button-1>', lambda event: self.click_to_radio_theme())
         theme_dark.bind('<Button-1>', lambda event: self.click_to_radio_theme())
+        autoupdate_on.bind('<Button-1>', lambda event: self.click_to_radio_auto_update())
+        autoupdate_off.bind('<Button-1>', lambda event: self.click_to_radio_auto_update())
 
         self.settings.columnconfigure(0, weight=1)
         load_frame.rowconfigure(0, weight=1)
+
+    def click_to_radio_auto_update(self):
+        var = self.auto_update_var.get()
+        settings = get_settings()
+
+        if var == 0:
+            self.auto_update_var.set(1)
+            self.loading_set.grid()
+            self.loading_set.after(4000, lambda: self.loading_set.grid_remove())
+            settings['auto_update'] = 1
+            write_dict_in_file(path_to_settings_json, settings)
+        else:
+            self.auto_update_var.set(0)
+            self.loading_set.grid()
+            self.loading_set.after(4000, lambda: self.loading_set.grid_remove())
+            settings['auto_update'] = 0
+            write_dict_in_file(path_to_settings_json, settings)       
     
     def add_edit_password_decript(self, edit=False):
         Windows(self).set_or_edit_password_decode(edit)
