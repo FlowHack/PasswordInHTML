@@ -256,9 +256,9 @@ class Updater(Tk):
         if path_to_settings is not None:
             shutil.copy(path_to_settings, os.path.join(path_app, 'settings'))
 
-        self.progressbar['value'] = 100
+        self.progressbar['value'] = 90
         self.progressbar.update()
-        self.info_lbl.configure(text='Готово!')
+        self.info_lbl.configure(text='Небольшая настройка')
         self.info_lbl.update()
 
         if platform in ['linux']:
@@ -266,6 +266,11 @@ class Updater(Tk):
             os.system(f'sudo chmod 777 {os.path.join(path_app, "PasswordInHTML.py")}')
             os.system(f'sudo chmod 777 {os.path.join(path_app, "PasswordInHTML.sh")}')
         os.system(f'sudo rm -r {os.path.join(path_app, REPO_UPDATER_BRANCH)}')
+
+        self.progressbar['value'] = 100
+        self.progressbar.update()
+        self.info_lbl.configure(text='Готово!')
+        self.info_lbl.update()
 
         if platform in ['linux']:
             self.btn_start.configure(text='Закрыть')
