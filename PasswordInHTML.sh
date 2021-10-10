@@ -19,7 +19,7 @@ else
 
 	echo "!!!!!Установка python3-tk=3.8.5-1~20.04.1!!!!!"
 	sleep 2
-	sudo apt install python3-tk=3.8.5-1~20.04.1
+	sudo apt install python3-tk
 
 
 	echo "!!!!!Установка python3-pip!!!!!"
@@ -35,14 +35,8 @@ else
 	pip3 install wheel
 	pip3 install -r requirements.txt
 
-	echo "Создать ярлык программы? [y,n]"
-	read yesorno
-
-	if [[ $yesorno == y* ]]; then
-    	echo "Создаю ярлык"
-		cd /usr/share/applications/
-		sudo touch PasswordInHTML.desktop  
-		echo "[Desktop Entry]
+	echo "!!!!!Добавление программы в список программ !!!!!"
+	label_app = "[Desktop Entry]
 Name=PasswordInHTML
 Comment=Программа для хранения паролей
 Exec=sh $open_file
@@ -50,10 +44,10 @@ Terminal=false
 Type=Application
 Icon=$path_to_ico
 Path=$path
-Categories=System" | sudo tee PasswordInHTML.desktop
-	else
-    	echo "Отмена создани ярлыка"
-	fi
+Categories=System"
+	cd /usr/share/applications/
+	sudo touch PasswordInHTML.desktop  
+	echo $label_app | sudo tee PasswordInHTML.desktop
 
 	echo "!!!!!Запуск программы!!!!!"
 	cd $path
