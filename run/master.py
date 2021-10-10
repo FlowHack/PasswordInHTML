@@ -358,10 +358,14 @@ class App(Tk):
         self.update_list()
     
     def edit_password(self):
+        name = self.get_record()
+        if name is None:
+            return 
+
         if Encryption().hash_password_decode is not None:
-            name = self.get_record()
-            if name is None:
-                return 
+            result = Windows(parent=self).entry_password()
+            if not result:
+                return
         
         windows = Windows(self)
         windows.add_password_or_edit(edit=True, name=name)
