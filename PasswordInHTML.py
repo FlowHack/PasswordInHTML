@@ -5,18 +5,20 @@ from os.path import isdir, isfile
 from sys import exit as exit_ex
 from sys import platform
 from time import sleep as time_sleep
+from os import listdir
 from tkinter import Label, TclError, Tk
 from tkinter.messagebox import showerror
 from tracemalloc import get_traced_memory
 from tracemalloc import start as trace_start
+from shutil import rmtree
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from PIL import Image, ImageTk
 
 from run import App, Windows, get_settings, unzip_file, write_dict_in_file
-from settings import (LOGGER, clean_after_app, default_settings,
+from settings import (LOGGER, clean_after_app, default_settings, path,
                       path_ico_screen_saver, path_icos_zip, path_to_passwords,
-                      path_to_settings_json, path_to_style)
+                      path_to_settings_json, path_to_style, REPO_BRANCH_MASTER, REPO_BRANCH_UPDATER, REPO_BRANCH_VERSION)
 
 if platform in ['linux']:
     OS = 'Linux'
@@ -46,6 +48,16 @@ class StartApp:
         scheduler = BackgroundScheduler()
         scheduler.start()
         scheduler.add_job(__scheduler__, 'interval', minutes=1)
+
+        list_path = listdir(path)
+        if REPO_BRANCH_UPDATER in list_path:
+            rmtree(REPO_BRANCH_UPDATER, ignore_errors=True, onerror=None)
+
+        if REPO_BRANCH_VERSION in list_path:
+            rmtree(REPO_BRANCH_VERSION, ignore_errors=True, onerror=None)
+
+        if REPO_BRANCH_MASTER in list_path:
+            rmtree(REPO_BRANCH_MASTER, ignore_errors=True, onerror=None)
 
         if isfile(path_to_settings_json):
             settings = get_settings()
