@@ -37,7 +37,7 @@ else
 	echo "Создать ярлык программы? [y,n]"
 	read yesorno
 
-	if [[ $pie == y* ]]; then
+	if [[ $yesorno == y* ]]; then
     	echo "Создаю ярлык"
 		sudo cd /usr/share/applications/
 		sudo echo "[Desktop Entry]\n
