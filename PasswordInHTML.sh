@@ -5,15 +5,6 @@ path=$PWD
 path_to_ico="$PWD/PasswordInHTML.ico"
 open_file="$PWD/PasswordInHTML.sh"
 open_application="$PWD/PasswordInHTML.py"
-label_app = "[Desktop Entry]
-Name=PasswordInHTML
-Comment=Программа для хранения паролей
-Exec=sh $open_file
-Terminal=false
-Type=Application
-Icon=$path_to_ico
-Path=$path
-Categories=System"
 
 if [ -d $file ]; then
 	$PWD/venv/bin/python3 PasswordInHTML.py
@@ -47,7 +38,15 @@ else
 	echo "!!!!!Добавление программы в список программ !!!!!"
 	cd /usr/share/applications/
 	sudo touch PasswordInHTML.desktop  
-	echo $label_app | sudo tee PasswordInHTML.desktop
+	echo "[Desktop Entry]
+Name=PasswordInHTML
+Comment=Программа для хранения паролей
+Exec=sh $open_file
+Terminal=false
+Type=Application
+Icon=$path_to_ico
+Path=$path
+Categories=System" | sudo tee PasswordInHTML.desktop
 
 	echo "!!!!!Запуск программы!!!!!"
 	cd $path
