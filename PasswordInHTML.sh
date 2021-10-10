@@ -37,7 +37,7 @@ else
 Name=PasswordInHTML
 Comment=Программа для хранения паролей
 Exec=sh $open_file
-Terminal=false
+Terminal=true
 Type=Application
 Icon=$path_to_ico
 Path=$path
