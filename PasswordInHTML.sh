@@ -4,6 +4,7 @@ file="$PWD/venv"
 path=$PWD
 path_to_ico="$PWD/PasswordInHTML.ico"
 open_file="$PWD/PasswordInHTML.sh"
+open_application="$PWD/PasswordInHTML.py"
 
 if [ -d $file ]; then
 	$PWD/venv/bin/python3 PasswordInHTML.py
@@ -54,5 +55,5 @@ else
 	fi
 
 	echo "!!!!!Запуск программы!!!!!"
-	python3 PasswordInHTML.py
+	python3 $open_application
 fi
