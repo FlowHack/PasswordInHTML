@@ -262,10 +262,16 @@ class Updater(Tk):
         self.info_lbl.update()
 
         if platform in ['linux']:
+            showinfo(
+                'Суперпользователь', 
+                'Для завершения настройки необходимы права суперпользователя. '
+                'Я сделаю файлы исполняемыми для возможности их запуска.'
+                '\n\nВведите свой пароль в консоли.'
+            )
             shutil.rmtree(os.path.join(path_app, 'venv'), ignore_errors=True, onerror=None)
             os.system(f'sudo chmod 777 {os.path.join(path_app, "PasswordInHTML.py")}')
             os.system(f'sudo chmod 777 {os.path.join(path_app, "PasswordInHTML.sh")}')
-        os.system(f'sudo rm -r {os.path.join(path_app, REPO_UPDATER_BRANCH)}')
+            os.system(f'sudo rm -r {os.path.join(path_app, REPO_UPDATER_BRANCH)}')
 
         self.progressbar['value'] = 100
         self.progressbar.update()
