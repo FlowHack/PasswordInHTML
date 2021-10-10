@@ -1,7 +1,7 @@
 from os import getcwd
 from os.path import join as path_join
 
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 
 UPDATE_WIN = 'updater.exe'
 UPDATE_LINUX = 'updater.sh'
