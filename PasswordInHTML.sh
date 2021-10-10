@@ -39,7 +39,7 @@ else
 
 	if [[ $yesorno == y* ]]; then
     	echo "Создаю ярлык"
-		sudo cd /usr/share/applications/
+		cd /usr/share/applications/
 		sudo echo "[Desktop Entry]\n
 		Name=PasswordInHTML\n
 		Comment=Программа для хранения паролей\n
