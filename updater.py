@@ -19,7 +19,7 @@ path = os.getcwd()
 os.chdir('..')
 path_app = os.getcwd()
 
-VERSION_UPDATER = '0.2.0'
+VERSION_UPDATER = '0.2.2'
 URL_REPO = 'https://github.com/FlowHack/PasswordInHTML/archive/refs/heads/master.zip'
 URL_VERSION_REPO = 'https://github.com/FlowHack/PasswordInHTML/archive/refs/heads/version.zip'
 REPO_BRANCH = 'PasswordInHTML-master'
