@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 passwords.settings
 passwords.json
+settings.json
