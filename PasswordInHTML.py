@@ -13,6 +13,7 @@ from tracemalloc import start as trace_start
 from shutil import rmtree
 
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers import interval
 from PIL import Image, ImageTk
 
 from run import App, Windows, get_settings, unzip_file, write_dict_in_file
@@ -47,7 +48,8 @@ class StartApp:
         self.logger.info('Создание задачи scheduler')
         scheduler = BackgroundScheduler()
         scheduler.start()
-        scheduler.add_job(__scheduler__, 'interval', minutes=1)
+        trigger = interval.IntervalTrigger(minutes=3)
+        scheduler.add_job(__scheduler__, trigger=trigger)
 
         list_path = listdir(path)
         if REPO_BRANCH_UPDATER in list_path:
