@@ -303,14 +303,14 @@ class App(Tk):
     def completetion_into_listbox(self, search=False):
         self.list_password.delete(0, 'end')
         self.disable_button_touch()
-        passwords = Passwords()
+        passwords = sorted(Passwords().name_passwords)
 
         if search is not False:
             fraze = self.search.get()
 
             k = 0
-            for i in range(len(passwords.name_passwords)):
-                name_password = passwords.name_passwords[i]
+            for i in range(len(passwords)):
+                name_password = passwords[i]
                 if fraze in name_password:
                     self.list_password.insert(k, name_password)
                     k += 1
@@ -319,8 +319,8 @@ class App(Tk):
                 self.list_password.insert(k, 'Ничего не найдено')
             return
 
-        for i in range(len(passwords.name_passwords)):
-            name_password = passwords.name_passwords[i]
+        for i in range(len(passwords)):
+            name_password = passwords[i]
             self.list_password.insert(i, name_password)
     
     def delete_password(self):
