@@ -1,6 +1,5 @@
 import subprocess
 import tempfile
-from tkinter import messagebox
 import zipfile
 from json import dump as dump_json
 from json import dumps as dumps_json
@@ -10,18 +9,21 @@ from os import system as os_system
 from os.path import isfile
 from os.path import join as path_join
 from shutil import rmtree
+from tkinter import filedialog, messagebox
 from tkinter.messagebox import askyesnocancel, showerror, showinfo, showwarning
 from typing import Union
 
-import requests
-from requests.exceptions import ConnectionError
-from tkinter import filedialog
-
 import clipboard
+import requests
+import winshell
+from requests.exceptions import ConnectionError
+from win32com.client import Dispatch
+
 from settings import (LOGGER, REPO_BRANCH_UPDATER, REPO_URL_UPDATER,
                       REPO_URL_VERSION, UPDATE_LINUX, UPDATE_WIN, VERSION,
-                      clean_after_app, path, path_to_passwords_json,
-                      path_to_settings_json, path_to_updater, path_to_version)
+                      clean_after_app, path, path_app_win,
+                      path_to_passwords_json, path_to_settings_json,
+                      path_to_updater, path_to_version)
 
 
 def set_position_window_on_center(parent, width: int, height: int) -> None:
@@ -127,7 +129,10 @@ class Passwords:
 
     def add_password(self, password):
         self.passwords_dict.update(password)
-        write_dict_in_file(path_to_passwords_json, self.passwords_dict)
+        sorted_passwords = dict(
+            sorted(self.passwords_dict.items(), key=lambda x: x[0])
+        )
+        write_dict_in_file(path_to_passwords_json, sorted_passwords)
 
     def edit_password(self, password, name):
         del self.passwords_dict[name]
@@ -356,3 +361,21 @@ def export_passwords(encryption):
         'защищены!'
     )
     return
+
+
+def create_shortcut_win(need=False):
+    desktop = winshell.desktop()
+    path_desktop = path_join(desktop, 'PasswordInHTML.lnk')
+    target = path_app_win
+    wDir = path
+    icon = path_app_win
+
+    shell = Dispatch('WScript.Shell')
+    shortcut = shell.CreateShortCut(path_desktop)
+    shortcut.Targetpath = target
+    shortcut.WorkingDirectory = wDir
+    shortcut.IconLocation = icon
+    shortcut.save()
+
+    if need:
+        showinfo('Удачно', 'Ярлык удачно создан!')

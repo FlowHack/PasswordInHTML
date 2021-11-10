@@ -5,6 +5,7 @@ from tkinter import Text, Tk, Toplevel, filedialog, messagebox, ttk
 from tkinter.messagebox import showwarning
 
 from PIL import Image, ImageTk
+
 from run import set_position_window_on_center
 from settings import (PERSON_AGREEMENT, path_to_little_ico,
                       path_to_passwords_settings, style)

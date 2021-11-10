@@ -14,7 +14,9 @@ from tracemalloc import start as trace_start
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers import interval
 from PIL import Image, ImageTk
-from run import App, Windows, get_settings, unzip_file, write_dict_in_file
+
+from run import (App, Windows, create_shortcut_win, get_settings, unzip_file,
+                 write_dict_in_file)
 from settings import (LOGGER, REPO_BRANCH_MASTER, REPO_BRANCH_UPDATER,
                       REPO_BRANCH_VERSION, clean_after_app, default_settings,
                       path, path_ico_screen_saver, path_icos_zip,
@@ -38,7 +40,10 @@ class StartApp:
     def __init__(self, preview):
         self.logger = LOGGER('start_app', 'main')
 
-        unzip_file(path_icos_zip, file_name='PassHTML.png', path_extract=path_to_style)
+        unzip_file(
+            path_icos_zip, file_name='PassHTML.png',
+            path_extract=path_to_style
+        )
         png_preview_open, png_preview = self.preview_image_open()
         self.preview_image_set(png_preview_open, png_preview, preview)
         preview.update()
@@ -69,7 +74,10 @@ class StartApp:
             first_start = 1
         auto_update = settings['auto_update']
 
-        unzip_file(path_icos_zip, file_name='LittlePassHTML.ico', path_extract=path_to_style)
+        unzip_file(
+            path_icos_zip, file_name='LittlePassHTML.ico',
+            path_extract=path_to_style
+        )
 
         if first_start == 1:
             self.logger.info('Первый запуск')
@@ -79,7 +87,8 @@ class StartApp:
             if done is True:
                 settings['first_start'] = 0
                 write_dict_in_file(path_to_settings_json, settings)
-        
+            create_shortcut_win()
+
         if not isdir(path_to_passwords):
             mkdir(path_to_passwords)
 
@@ -96,7 +105,7 @@ class StartApp:
         self.logger.info('Закрытие приложения')
 
         clean_after_app()
-    
+
     def preview_image_open(self):
         """
         Возвращает первью картинку
@@ -107,9 +116,11 @@ class StartApp:
             return png_preview_open, png_preview
         except FileNotFoundError as err:
             self.logger.error(str(err))
-            unzip_file(path_icos_zip, file_name='PassHTML.png', path_extract=path_to_style)
+            unzip_file(
+                path_icos_zip, file_name='PassHTML.png',
+                path_extract=path_to_style
+            )
 
-    
     @staticmethod
     def preview_image_set(png_preview_open, png_preview, window_preview):
         """
@@ -121,6 +132,7 @@ class StartApp:
         y = (window_preview.winfo_screenheight() - y_img) // 2
         window_preview.geometry("%ix%i+%i+%i" % (x_img, y_img, x, y))
         Label(window_preview, image=png_preview).pack(side='top')
+
 
 if __name__ == '__main__':
     if platform not in ['linux', 'win32', 'cygwin']:
@@ -153,13 +165,13 @@ if __name__ == '__main__':
             f'Использовалось: {size_last}Mib, Теперь: {size_now}Mib, '
             f'В пике: {size_peak}Mib'
         )
-    
+
     def __clean_preview__():
         if isfile(path_ico_screen_saver):
             file_remove(path_ico_screen_saver)
 
     preview = Tk()
-    preview.attributes("-topmost",True)
+    preview.attributes("-topmost", True)
     preview.overrideredirect(True)
 
     StartApp(preview)

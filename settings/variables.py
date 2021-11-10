@@ -1,7 +1,7 @@
 from os import getcwd
 from os.path import join as path_join
 
-VERSION = '1.2.3'
+VERSION = '1.3.6'
 
 UPDATE_WIN = 'updater.exe'
 UPDATE_LINUX = 'updater.sh'
@@ -12,6 +12,7 @@ REPO_BRANCH_UPDATER = 'PasswordInHTML-updater'
 REPO_BRANCH_MASTER = 'PasswordInHTML-master'
 
 path = getcwd()
+path_app_win = path_join(path, 'PasswordInHTML.exe')
 path_to_version = path_join(path, REPO_BRANCH_VERSION)
 path_to_updater = path_join(path, REPO_BRANCH_UPDATER)
 path_to_settings = path_join(path, 'settings')

@@ -1,9 +1,11 @@
-from .variables import *
 from settings.settings import LOGGER, clean_after_app
+
 from .style import style
+from .variables import *
 
 __all__ = [
     'path',
+    'path_app_win',
     'path_to_settings',
     'path_icos_zip',
     'path_to_style',

@@ -1,7 +1,8 @@
 from tkinter.ttk import Style
 
 from _tkinter import TclError
-from settings import path_to_main_style
+
+from ..variables import path_to_main_style
 
 DEFAULT_STYLE = 'awdark'
 BUTTON_BACKGROUND = '#6D6D6D'

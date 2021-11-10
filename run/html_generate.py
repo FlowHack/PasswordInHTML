@@ -86,13 +86,16 @@ template_style_5 = """
 }
 </style>"""
 
+
 def start_template(html):
     write_file(path_to_html, html)
     web_open(path_to_html, new=2)
 
+
 def generate_template():
     html = template_html
     passwords_dict, name_passwords = Passwords().get_passwords()
+    passwords = {}
     encryption = Encryption()
     settings = get_settings()
     theme = settings['theme']

@@ -3,6 +3,7 @@ from .master import App
 from .windows import Windows
 
 __all__ = [
+    'create_shortcut_win',
     'set_position_window_on_center',
     'copy_in_clipboard',
     'paste_into_widget',

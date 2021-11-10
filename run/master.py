@@ -2,14 +2,15 @@ from os.path import isfile
 from tkinter import IntVar, Listbox, TclError, Tk, ttk
 
 from PIL import Image, ImageTk
+
 from run import unzip_file
 from run.windows import Windows
 from settings import *
 from settings.encryption import Encryption
 
-from .functions import (Passwords, check_update, export_passwords,
-                        get_settings, set_position_window_on_center,
-                        write_dict_in_file, import_passwords)
+from .functions import (Passwords, check_update, create_shortcut_win,
+                        export_passwords, get_settings, import_passwords,
+                        set_position_window_on_center, write_dict_in_file)
 from .html_generate import generate_template
 
 
@@ -101,6 +102,8 @@ class App(Tk):
         import_pass_frame.grid(row=3, column=0, sticky='NWE', padx=5, pady=5)
         export_pass_frame = ttk.Frame(self.settings)
         export_pass_frame.grid(row=4, column=0, sticky='NWE', padx=5)
+        shortcut_frame = ttk.Frame(self.settings)
+        shortcut_frame.grid(row=5, column=0, sticky='NWE', padx=5, pady=5)
 
         load_frame = ttk.Frame(self.settings)
         load_frame.grid(row=0, column=1, padx=8, sticky='NWE')
@@ -204,6 +207,15 @@ class App(Tk):
             command=lambda: self.export_passwords_in_file()
         ).grid(row=0, column=1, sticky='NWE', padx=5)
 
+        ttk.Label(
+            shortcut_frame, text='Создать ярлык:',
+            font=('Times New Roman', 13, 'bold italic')
+        ).grid(row=0, column=0, sticky='NWE')
+        ttk.Button(
+            shortcut_frame, text='Для Windows',
+            command=lambda: create_shortcut_win(True)
+        ).grid(row=0, column=1, sticky='NWE', padx=5)
+
         theme_light.bind(
             '<Button-1>', lambda event: self.click_to_radio_theme()
         )
@@ -246,11 +258,13 @@ class App(Tk):
         self.build_settings()
 
     def import_passwords_from_file(self, format_pass):
+        self.loading_set.grid()
         if format_pass == 1:
             import_passwords(Encryption)
         else:
             Windows(self).import_passwords_from_file(format_pass)
         self.completetion_into_listbox()
+        self.loading_set.grid_remove()
 
     def export_passwords_in_file(self):
         self.loading_set.grid()
