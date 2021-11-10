@@ -1,25 +1,24 @@
 import gc
-from os import mkdir
+from os import listdir, mkdir
 from os import remove as file_remove
 from os.path import isdir, isfile
+from shutil import rmtree
 from sys import exit as exit_ex
 from sys import platform
 from time import sleep as time_sleep
-from os import listdir
 from tkinter import Label, TclError, Tk
 from tkinter.messagebox import showerror
 from tracemalloc import get_traced_memory
 from tracemalloc import start as trace_start
-from shutil import rmtree
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers import interval
 from PIL import Image, ImageTk
-
 from run import App, Windows, get_settings, unzip_file, write_dict_in_file
-from settings import (LOGGER, clean_after_app, default_settings, path,
-                      path_ico_screen_saver, path_icos_zip, path_to_passwords,
-                      path_to_settings_json, path_to_style, REPO_BRANCH_MASTER, REPO_BRANCH_UPDATER, REPO_BRANCH_VERSION)
+from settings import (LOGGER, REPO_BRANCH_MASTER, REPO_BRANCH_UPDATER,
+                      REPO_BRANCH_VERSION, clean_after_app, default_settings,
+                      path, path_ico_screen_saver, path_icos_zip,
+                      path_to_passwords, path_to_settings_json, path_to_style)
 
 if platform in ['linux']:
     OS = 'Linux'
@@ -160,6 +159,7 @@ if __name__ == '__main__':
             file_remove(path_ico_screen_saver)
 
     preview = Tk()
+    preview.attributes("-topmost",True)
     preview.overrideredirect(True)
 
     StartApp(preview)

@@ -3,7 +3,7 @@ from logging import INFO, Formatter, getLogger
 from logging.handlers import RotatingFileHandler
 from sys import exit as exit_ex
 
-from settings import path_to_little_ico, path_to_settings, path_to_html
+from settings import path_to_html, path_to_little_ico, path_to_settings
 
 
 def __get_logger__(name: str, file: str) -> object:

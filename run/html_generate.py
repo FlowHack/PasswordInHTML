@@ -1,8 +1,9 @@
-from settings import encryption
-from .functions import Passwords, get_settings, write_file
-from settings import path_to_little_ico, path_to_html
-from settings.encryption import Encryption
 from webbrowser import open as web_open
+
+from settings import encryption, path_to_html, path_to_little_ico
+from settings.encryption import Encryption
+
+from .functions import Passwords, get_settings, write_file
 
 template_html = """<!DOCTYPE html>
 <html lang="en">
@@ -132,4 +133,3 @@ def generate_template():
         body=template_style + '\n<section class="content">' + cards + '\n</section>'
     )
     start_template(html)
-    
