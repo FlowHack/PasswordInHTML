@@ -235,7 +235,7 @@ def check_update(os_name: str, call: bool = False) -> None:
     v_int = [int(item) for item in version.split('.')]
     version_old = [item for item in VERSION.split('.')]
     v_old_int = [int(item) for item in version_old]
-    info = file[1]
+    info = file[1].replace('\\n', '\n')
 
     condition_1 = v_int[0] > v_old_int[0]
     condition_2 = v_int[0] >= v_old_int[0] and v_int[1] > v_old_int[1]
